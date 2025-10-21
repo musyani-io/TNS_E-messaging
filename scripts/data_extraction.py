@@ -93,10 +93,10 @@ if __name__ == "__main__":
 
     if os.path.exists(sourceFilePath):
 
-        workSheet, fileName = envSetup(sourceFilePath)    # Require sheet given
+        workSheet, fileName = envSetup(sourceFilePath)  # Require sheet given
 
         startCell = workSheet["A1"]
-        customerInfo = iterateOverBoxes(startCell)             # Iterated over box to collect data
+        customerInfo = iterateOverBoxes(startCell)  # Iterated over box to collect data
 
         fileCreation(fileName)
         addCsvData(fileName, customerInfo)

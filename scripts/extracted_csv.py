@@ -2,6 +2,7 @@ import os
 import csv
 import sys
 
+
 def fileCreation(fileName):
 
     filePath = f"docs/results/{fileName}.csv"
@@ -30,6 +31,7 @@ def fileCreation(fileName):
             print(f"Error: {type(Error).__name__} - {Error}")
             sys.exit(1)
 
+
 def addCsvData(fileName, info):
 
     filePath = f"docs/results/{fileName}.csv"
@@ -43,6 +45,3 @@ def addCsvData(fileName, info):
     except Exception as Error:
         print(f"Error: {type(Error).__name} - Error")
         sys.exit(1)
-
-
-        

@@ -9,7 +9,7 @@ A small project to extract collected data from excel (custom formatted) into a w
 - Obtain a reputable SMS gateway's API ❌
 - Send the message and see its state of delivery at any time ❌
 - Deliver the message to different people, meaning that smart phone messages (long) and non-smart message (short) ❌
-- Have records of people and status of their message
+- Have records of people and status of their message ❌
 
 ## Additional Requirements
 
