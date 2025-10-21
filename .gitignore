@@ -2,3 +2,4 @@
 *.venv
 *.json
 docs
+*__pycache__

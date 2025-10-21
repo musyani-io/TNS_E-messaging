@@ -14,3 +14,10 @@ dateTime_dict = {
     11: "Nov",
     12: "Dec",
 }
+
+def localToInt(localNumber):
+
+    localNumber = localNumber.replace(" ", "")
+    intNumber = "+255" + localNumber[1:]
+
+    return intNumber
