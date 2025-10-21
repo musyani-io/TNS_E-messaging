@@ -1,8 +1,9 @@
 from miscallenous import *
+from datetime import datetime
+from extracted_csv import *
 import openpyxl
 import os
 import sys
-from datetime import datetime
 
 
 def envSetup(sourcePath):
@@ -16,7 +17,7 @@ def envSetup(sourcePath):
 
         workbook = openpyxl.load_workbook(sourcePath, data_only=True)
         workSheet = workbook[f"Accounts for {dateTime_dict[date.month]}, {date.year}"]
-        return workSheet
+        return workSheet, f"{dateTime_dict[date.month]}, {date.year}"
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
@@ -62,7 +63,7 @@ def iterateOverBoxes(startCell):
     # As the name, goes over a fixed increment to collect data to other boxes
 
     usedCell = startCell
-    vertCustomers = 2
+    vertCustomers = 5
     customerInfo = []
     rowIncr = 14
     colIncr = 6
@@ -92,10 +93,13 @@ if __name__ == "__main__":
 
     if os.path.exists(sourceFilePath):
 
-        workSheet = envSetup(sourceFilePath)
+        workSheet, fileName = envSetup(sourceFilePath)    # Require sheet given
 
         startCell = workSheet["A1"]
-        print(iterateOverBoxes(startCell))
+        customerInfo = iterateOverBoxes(startCell)             # Iterated over box to collect data
+
+        fileCreation(fileName)
+        addCsvData(fileName, customerInfo)
 
     else:
         print("Invalid path provided!")

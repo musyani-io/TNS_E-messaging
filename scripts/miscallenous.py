@@ -1,5 +1,3 @@
-# This file is mainly here for custom short form of words used in the documents
-
 dateTime_dict = {
     1: "Jan",
     2: "Feb",
@@ -15,11 +13,12 @@ dateTime_dict = {
     12: "Dec",
 }
 
+
 def localToInt(localNumber):
 
     if localNumber is None:
         intNumber = 0
-    
+
     else:
         localNumber = localNumber.replace(" ", "")
         intNumber = "+255" + localNumber[1:]
