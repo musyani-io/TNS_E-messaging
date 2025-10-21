@@ -17,7 +17,11 @@ dateTime_dict = {
 
 def localToInt(localNumber):
 
-    localNumber = localNumber.replace(" ", "")
-    intNumber = "+255" + localNumber[1:]
+    if localNumber is None:
+        intNumber = 0
+    
+    else:
+        localNumber = localNumber.replace(" ", "")
+        intNumber = "+255" + localNumber[1:]
 
     return intNumber

@@ -8,7 +8,7 @@ from datetime import datetime
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 1, 3)  # Dummy date for configuration, will be erased later
+    date = datetime(2024, 9, 3)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enable on final testing and usage
     month = dateTime_dict[date.month]
 
@@ -23,7 +23,7 @@ def envSetup(sourcePath):
         sys.exit(1)
 
 
-def extractFromBox(sheet, cell):
+def extractFromBox(cell):
 
     def jumpTo(row, col):
         return cell.offset(row=row, column=col)
@@ -51,11 +51,39 @@ def extractFromBox(sheet, cell):
         nameCell.value,
         numCell.value,
         commCell.value,
-        literUsage.value,
-        netCharge.value,
-        adjustments.value,
+        round(literUsage.value, 1),
+        int(netCharge.value),
+        (adjustments.value),
         bill.value,
     )
+
+
+def iterateOverBoxes(startCell):
+    # As the name, goes over a fixed increment to collect data to other boxes
+
+    usedCell = startCell
+    vertCustomers = 2
+    customerInfo = []
+    rowIncr = 14
+    colIncr = 6
+    count = 0
+
+    while vertCustomers > 0:  # Iterate going downwards
+
+        horzCustomers = 3
+        while horzCustomers > 0:  # Iterate sideways
+
+            customerInfo.append(extractFromBox(usedCell))
+
+            usedCell = usedCell.offset(row=0, column=colIncr)
+            horzCustomers -= 1
+
+        count += 1
+        usedCell = startCell
+        usedCell = usedCell.offset(row=(count * rowIncr), column=0)
+        vertCustomers -= 1
+
+    return customerInfo
 
 
 if __name__ == "__main__":
@@ -66,10 +94,8 @@ if __name__ == "__main__":
 
         workSheet = envSetup(sourceFilePath)
 
-        startCell = workSheet["A1"]  # First cell
-        incr = 14  # Difference between boxes
-
-        extractFromBox(workSheet, startCell)
+        startCell = workSheet["A1"]
+        print(iterateOverBoxes(startCell))
 
     else:
         print("Invalid path provided!")
