@@ -51,12 +51,11 @@ def addCsvData(fileName, info):
                 date2 = datetime.strptime(row[0], "%d-%b-%Y")
                 if (date == date2) and (row[1] is not None) and (row[5] > 1):
                     rowList.append(row)
-            
+
         with open(filePath, "a", newline="") as csvFile:
 
             writer = csv.writer(csvFile)
             writer.writerows(rowList)
-
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")

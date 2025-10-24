@@ -27,7 +27,7 @@ def extractFromBox(cell):
 
     def jumpTo(row, col):
         return cell.offset(row=row, column=col)
-    
+
     def noneReturn(value, exceptionValue):
         return exceptionValue if value is None else value
 
@@ -69,7 +69,6 @@ def extractFromBox(cell):
         0 if adjustments.value is None else adjustments.value,
         noneReturn(bill.value, 0),
     )
-
 
 
 def iterateOverBoxes(startCell):
