@@ -41,7 +41,7 @@ def readCsv(fileName):
                     "Deadline Date": newDate,
                 }
 
-                tempPath = "message_templates/Chanika/smart_text.txt"
+                tempPath = f"message_templates/{row[4]}/smart_text.txt"
                 fillTemp(tempPath, var)
 
     except Exception as Error:
