@@ -1,5 +1,6 @@
 import csv
 import sys
+from datetime import datetime, timedelta
 
 def fillTemp(tempPath, var):
     # Read the file first
@@ -7,6 +8,7 @@ def fillTemp(tempPath, var):
         with open(tempPath, "r") as temp:
             file = temp.read()
             filled = file.format(**var)
+
             print(filled)
 
     except Exception as Error:
@@ -23,9 +25,23 @@ def readCsv(fileName):
             next(reader)
             rows = []
             for row in reader:
-                rows.append(row)
+                
+                startDate = datetime.strptime(row[0], "%d-%b-%Y")
+                newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
-            print(rows)
+                var = { # Dictionary for variables in message templates.
+                    "Month, year": fileName,
+                    "Customer Name": row[1],
+                    "Liters Used": row[5],
+                    "Net Charge": row[6],
+                    "Adjustments": row[7],
+                    "Final Bill": row[8],
+                    "Deadline Date": newDate
+                }
+
+                tempPath = "message_templates/Chanika/smart_text.txt"
+                fillTemp(tempPath, var)
+                
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")

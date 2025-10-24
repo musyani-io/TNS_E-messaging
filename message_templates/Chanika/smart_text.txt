@@ -1,11 +1,11 @@
 Mpendwa {Customer Name},
 Salaam!
-Taarifa ya Ankara ya maji, {fileName}:
+Taarifa ya Ankara ya maji, {Month, year}:
 TAFADHALI SOMA KWA UANGALIFU, HADI MWISHO.
 Matumizi: Lt {Liters Used}
 Gharama yake: Sh {Net Charge}
 Marekebisho kuhusisha ankara iliyopita: Sh {Adjustments}
 ANKARA UNAYOTAKIWA KULIPA SASA: Sh {Final Bill}
 Malipo: Taslimu Kituoni au tuma kwenye TigoPesa namba 0776765680 (Dan Musyani).
-TAFADHALI LIPA ANKARA KWA UKAMILIFU kabla ya tarehe {Reading date + 7 days} ili kuepusha usumbufu.
+TAFADHALI LIPA ANKARA KWA UKAMILIFU kabla ya tarehe {Deadline Date} ili kuepusha usumbufu.
 Ahsante.

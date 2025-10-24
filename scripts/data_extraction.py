@@ -28,6 +28,9 @@ def extractFromBox(cell):
 
     def jumpTo(row, col):
         return cell.offset(row=row, column=col)
+    
+    def noneReturn(value, exceptionValue):
+        return exceptionValue if value is None else value
 
     # Extract communication type, name and telephone
     commCell = jumpTo(0, 3)
@@ -37,6 +40,7 @@ def extractFromBox(cell):
 
     # Extract reading date
     readingDate = jumpTo(2, 4)
+    readingDate.value = noneReturn(readingDate.value, datetime(2000, 1, 1))
     readingDate.value = datetime.strftime(readingDate.value, "%d-%b-%Y")
 
     # Extract amount in liters used, net charge and adjustments
@@ -55,24 +59,27 @@ def extractFromBox(cell):
     else:
         location = "Chanika"
 
+    print(nameCell.value)
+
     return (
         readingDate.value,
         nameCell.value,
         numCell.value,
         commCell.value,
         location,
-        round(literUsage.value, 1),
-        int(netCharge.value),
-        (adjustments.value),
-        bill.value,
+        round(noneReturn(literUsage.value, 0), 1),
+        int(noneReturn(netCharge.value, 0)),
+        0 if adjustments.value is None else adjustments.value,
+        noneReturn(bill.value, 0),
     )
+
 
 
 def iterateOverBoxes(startCell):
     # As the name, goes over a fixed increment to collect data to other boxes
 
     usedCell = startCell
-    vertCustomers = 1
+    vertCustomers = 8
     customerInfo = []
     rowIncr = 14
     colIncr = 6
@@ -80,7 +87,7 @@ def iterateOverBoxes(startCell):
 
     while vertCustomers > 0:  # Iterate going downwards
 
-        horzCustomers = 1
+        horzCustomers = 3
         while horzCustomers > 0:  # Iterate sideways
 
             customerInfo.append(extractFromBox(usedCell))
