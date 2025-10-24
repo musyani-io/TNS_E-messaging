@@ -8,9 +8,9 @@ def fillTemp(tempPath, var):
     try:
         with open(tempPath, "r") as temp:
             file = temp.read()
-            filled = file.format(**var)
+            filledTemp = file.format(**var)
 
-            print(filled)
+            return filledTemp
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
@@ -42,7 +42,8 @@ def readCsv(fileName):
                 }
 
                 tempPath = f"message_templates/{row[4]}/smart_text.txt"
-                fillTemp(tempPath, var)
+
+                return fillTemp(tempPath, var), row[2] # row[2] is for contacts
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
