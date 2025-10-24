@@ -72,7 +72,7 @@ def iterateOverBoxes(startCell):
     # As the name, goes over a fixed increment to collect data to other boxes
 
     usedCell = startCell
-    vertCustomers = 5
+    vertCustomers = 1
     customerInfo = []
     rowIncr = 14
     colIncr = 6
@@ -80,7 +80,7 @@ def iterateOverBoxes(startCell):
 
     while vertCustomers > 0:  # Iterate going downwards
 
-        horzCustomers = 3
+        horzCustomers = 1
         while horzCustomers > 0:  # Iterate sideways
 
             customerInfo.append(extractFromBox(usedCell))
