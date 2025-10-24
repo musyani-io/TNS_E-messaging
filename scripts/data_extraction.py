@@ -9,7 +9,7 @@ import sys
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 9, 3)  # Dummy date for configuration, will be erased later
+    date = datetime(2024, 8, 3)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enable on final testing and usage
     month = dateTime_dict[date.month]
 
@@ -28,6 +28,9 @@ def extractFromBox(cell):
 
     def jumpTo(row, col):
         return cell.offset(row=row, column=col)
+    
+    def noneReturn(var):
+        return var if var else None
 
     # Extract communication type, name and telephone
     commCell = jumpTo(0, 3)
@@ -37,7 +40,7 @@ def extractFromBox(cell):
 
     # Extract reading date
     readingDate = jumpTo(2, 4)
-    readingDate.value = datetime.strftime(readingDate.value, "%d-%b-%Y")
+    readingDate.value = noneReturn(datetime.strftime(readingDate.value, "%d-%b-%Y"))
 
     # Extract amount in liters used, net charge and adjustments
     literUsage = jumpTo(5, 4)
@@ -47,11 +50,20 @@ def extractFromBox(cell):
     # Extract final bill
     bill = jumpTo(11, 1)
 
+    # Extract customer's color (location varied)
+    topColor = cell.border.top.color
+    color = topColor.index if topColor else None
+    if color is None:
+        location = "Lumo"
+    else:
+        location = "Chanika"
+
     return (
         readingDate.value,
         nameCell.value,
         numCell.value,
         commCell.value,
+        location,
         round(literUsage.value, 1),
         int(netCharge.value),
         (adjustments.value),
@@ -63,7 +75,7 @@ def iterateOverBoxes(startCell):
     # As the name, goes over a fixed increment to collect data to other boxes
 
     usedCell = startCell
-    vertCustomers = 5
+    vertCustomers = 6
     customerInfo = []
     rowIncr = 14
     colIncr = 6

@@ -18,6 +18,7 @@ def fileCreation(fileName):
                     "Customer Name",
                     "Contacts",
                     "Communication App",
+                    "Location",
                     "Liters Used",
                     "Net Charge",
                     "Adjustments",
