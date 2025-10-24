@@ -28,9 +28,6 @@ def extractFromBox(cell):
 
     def jumpTo(row, col):
         return cell.offset(row=row, column=col)
-    
-    def noneReturn(var):
-        return var if var else None
 
     # Extract communication type, name and telephone
     commCell = jumpTo(0, 3)
@@ -40,7 +37,7 @@ def extractFromBox(cell):
 
     # Extract reading date
     readingDate = jumpTo(2, 4)
-    readingDate.value = noneReturn(datetime.strftime(readingDate.value, "%d-%b-%Y"))
+    readingDate.value = datetime.strftime(readingDate.value, "%d-%b-%Y")
 
     # Extract amount in liters used, net charge and adjustments
     literUsage = jumpTo(5, 4)
@@ -75,7 +72,7 @@ def iterateOverBoxes(startCell):
     # As the name, goes over a fixed increment to collect data to other boxes
 
     usedCell = startCell
-    vertCustomers = 6
+    vertCustomers = 5
     customerInfo = []
     rowIncr = 14
     colIncr = 6
