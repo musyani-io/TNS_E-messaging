@@ -33,14 +33,15 @@ def extractFromBox(cell):
 
     # Extract date
     readingDate = jumpTo(1, 4)
-    readingDate.value = datetime.strftime(readingDate.value, "%d-%m-%Y")
+    # readingDate.value = noneReturn(readingDate.value, datetime(2000, 1, 1))
 
     # Extract name and contact info
     name = jumpTo(0, 1)
     comm = jumpTo(0, 3)
+    comm.value = localToInt(comm.value)
 
     # Extract communication application and location
-    commApp = jumpTo(-1, 3)
+    commApp = jumpTo(-1, 3) 
     colorBox = jumpTo(-1, 0)
     topColor = colorBox.border.top.color
     color = topColor.index if topColor else None
@@ -72,22 +73,32 @@ def extractFromBox(cell):
 
 def iterateOnBoxes(cell):
 
-    rows = 786  # No. of iteration to cover all boxes
+    startCell = cell
+    col = 0
     customerInfo = []
     try:
+        while col < 3:
+            
+            rows = 786  # No. of iteration to cover all boxes
 
-        while rows > 0:
+            while rows > 0:
 
-            if cell.value == "Name/Tel:":  # Box with 'Name/Tel:' is the starting point
-                customerInfo.append(extractFromBox(cell))
+                if cell.value == "Name/Tel:":  # Box with 'Name/Tel:' is the starting point
+                    print(extractFromBox(cell))
+                    customerInfo.append(extractFromBox(cell))
 
-            cell = cell.offset(row=1, column=0)
-            rows -= 1
+                cell = cell.offset(row=1, column=0)
+                rows -= 1
+
+            col += 1
+            cell = startCell
+            cell = cell.offset(row=0, column=(6 * col))
 
         return customerInfo
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -101,8 +112,9 @@ if __name__ == "__main__":
         startCell = workSheet["A1"]
 
         customerInfo = iterateOnBoxes(startCell)
-        fileCreation(fileName)
-        addCsvData(fileName, customerInfo)
+        print(customerInfo, end="\n")
+        # fileCreation(fileName)
+        # addCsvData(fileName, customerInfo)
 
     else:
         print("Invalid path provided!")

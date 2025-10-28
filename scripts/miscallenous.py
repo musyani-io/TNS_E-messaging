@@ -22,6 +22,7 @@ def localToInt(localNumber):
         intNumber = 0
 
     else:
+        localNumber = str(localNumber)
         localNumber = localNumber.replace(" ", "")
         intNumber = "+255" + localNumber[1:]
 

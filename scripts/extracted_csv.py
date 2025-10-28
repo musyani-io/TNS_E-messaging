@@ -48,7 +48,7 @@ def addCsvData(fileName, info):
 
             for row in info:
 
-                date2 = datetime.strptime(row[0], "%d-%m-%Y")
+                date2 = datetime.strptime(row[0], "%d-%b-%Y")
                 if (date == date2) and (row[1] is not None) and (row[5] > 1):
                     # Proves if the data is of same date, has a name and also, there are some liters used.
                     rowList.append(row)
