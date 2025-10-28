@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from pprint import pprint
 import os
 import csv
@@ -49,7 +49,11 @@ def addCsvData(fileName, info):
             for row in info:
 
                 date2 = datetime.strptime(row[0], "%d-%b-%Y")
-                if (date == date2) and (row[1] is not None) and (row[5] > 1):
+                if (
+                    (date - date2 <= timedelta(days=7))
+                    and (row[1] is not None)
+                    and (row[5] > 1)
+                ):
                     # Proves if the data is of same date, has a name and also, there are some liters used.
                     rowList.append(row)
 

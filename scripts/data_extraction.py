@@ -33,7 +33,7 @@ def extractFromBox(cell):
 
     # Extract date
     readingDate = jumpTo(1, 4)
-    # readingDate.value = noneReturn(readingDate.value, datetime(2000, 1, 1))
+    dateStr = readingDate.value.strftime("%d-%b-%Y")
 
     # Extract name and contact info
     name = jumpTo(0, 1)
@@ -41,7 +41,7 @@ def extractFromBox(cell):
     comm.value = localToInt(comm.value)
 
     # Extract communication application and location
-    commApp = jumpTo(-1, 3) 
+    commApp = jumpTo(-1, 3)
     colorBox = jumpTo(-1, 0)
     topColor = colorBox.border.top.color
     color = topColor.index if topColor else None
@@ -59,7 +59,7 @@ def extractFromBox(cell):
     finalBill = jumpTo(10, 1)
 
     return [
-        readingDate.value,
+        dateStr,
         name.value,
         comm.value,
         commApp.value,
@@ -78,13 +78,14 @@ def iterateOnBoxes(cell):
     customerInfo = []
     try:
         while col < 3:
-            
+
             rows = 786  # No. of iteration to cover all boxes
 
             while rows > 0:
 
-                if cell.value == "Name/Tel:":  # Box with 'Name/Tel:' is the starting point
-                    print(extractFromBox(cell))
+                if (
+                    cell.value == "Name/Tel:"
+                ):  # Box with 'Name/Tel:' is the starting point
                     customerInfo.append(extractFromBox(cell))
 
                 cell = cell.offset(row=1, column=0)
@@ -112,9 +113,8 @@ if __name__ == "__main__":
         startCell = workSheet["A1"]
 
         customerInfo = iterateOnBoxes(startCell)
-        print(customerInfo, end="\n")
-        # fileCreation(fileName)
-        # addCsvData(fileName, customerInfo)
+        fileCreation(fileName)
+        addCsvData(fileName, customerInfo)
 
     else:
         print("Invalid path provided!")
