@@ -35,8 +35,6 @@ TNS E-messaging is a small tooling project whose goal is to extract monthly bill
 
 ## Recommendations — improvements to make this reliable and easy to use
 
-I list practical, incremental improvements you can make (sorted from high to moderate priority):
-
 1. Configuration and secrets
 
    - Move environment/config into a clear config file (YAML/JSON) or use a small CLI with flags. Provide an example `env.example` or `config.sample.yml`.
