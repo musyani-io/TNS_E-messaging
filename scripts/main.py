@@ -25,7 +25,7 @@ def displayData(fileName, headers):
             for rows in reader:
                 row.append(rows)
 
-                if rows[4] ==  "Lumo":
+                if rows[4] == "Lumo":
                     lumoCli += 1
                 else:
                     chnkCli += 1
@@ -94,6 +94,7 @@ def extractData(sourcePath):
 
     else:
         print("Error: Source File Path not Found!")
+
 
 def main():
 

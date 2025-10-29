@@ -14,7 +14,10 @@ def send_sms(message, phoneNumber):
     baseUrl = "https://api.textbee.dev/api/v1"
     requestUrl = f"{baseUrl}/gateway/devices/{deviceId}/send-sms"
 
-    headers = {"x-api-key": apiKey, "Content-Type": "application/json"} # This is for authorization and type of data to post or get
+    headers = {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
+    }  # This is for authorization and type of data to post or get
 
     payload = {
         "message": message,
@@ -32,6 +35,7 @@ def send_sms(message, phoneNumber):
     except Exception as Error:
         print(f"Status code: {response.status_code}, Error: {type.__name__} - {Error}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
 
