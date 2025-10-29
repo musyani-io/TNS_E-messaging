@@ -32,3 +32,12 @@ def send_sms(message, phoneNumber):
     except Exception as Error:
         print(f"Status code: {response.status_code}, Error: {type.__name__} - {Error}")
         sys.exit(1)
+
+if __name__ == "__main__":
+
+    phoneNumber = "+255773422381"
+    if send_sms("Hello", phoneNumber):
+        print(f"Sent to {phoneNumber}✅")
+
+    else:
+        print("Not succesful")
