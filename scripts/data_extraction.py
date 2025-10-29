@@ -104,31 +104,4 @@ def iterateOnBoxes(cell):
 
 if __name__ == "__main__":
 
-    sourceFilePath = "docs/source/source_data.xlsx"
-
-    if os.path.exists(sourceFilePath):
-
-        workSheet, fileName = envSetup(sourceFilePath)  # Require sheet given
-
-        startCell = workSheet["A1"]
-
-        customerInfo = iterateOnBoxes(startCell)
-        fileCreation(
-            fileName,
-            headers=[
-                "Reading Date",
-                "Customer Name",
-                "Contacts",
-                "Communication App",
-                "Location",
-                "Liters Used",
-                "Net Charge",
-                "Adjustments",
-                "Final Bill",
-            ],
-        )
-        addCsvData(fileName, customerInfo)
-
-    else:
-        print("Invalid path provided!")
-        sys.exit(1)
+    print("Extraction test field!")

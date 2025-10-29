@@ -23,18 +23,35 @@ def fileCreation(fileName, headers):
             sys.exit(1)
 
 
-def addCsvData(fileName, info):
+def addRows(fileName, info):
 
     filePath = f"docs/results/{fileName}.csv"
 
-    rowList = []
+    try:
+        
+        with open(filePath, "a", newline="") as csvFile:
+
+            writer = csv.writer(csvFile)
+
+            data = activeClients(filePath, info)
+            writer.writerows(data)
+
+    except Exception as Error:
+        print(f"Error: {type(Error).__name__} - {Error}")
+        sys.exit(1)
+
+def activeClients(filePath, data):
 
     try:
+
+        rowList = []
+
         with open(filePath, "r") as csvFile:
 
             date = datetime.strptime("22-Aug-2024", "%d-%b-%Y")
+            # date = datetime.strftime(datetime.today(), "%d-%b-%Y")  # This is for actual usage or final testing
 
-            for row in info:
+            for row in data:
 
                 date2 = datetime.strptime(row[0], "%d-%b-%Y")
                 if (
@@ -44,11 +61,8 @@ def addCsvData(fileName, info):
                 ):
                     # Proves if the data is of same date, has a name and also, there are some liters used.
                     rowList.append(row)
-
-        with open(filePath, "a", newline="") as csvFile:
-
-            writer = csv.writer(csvFile)
-            writer.writerows(rowList)
+        
+        return rowList
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")

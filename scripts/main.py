@@ -1,3 +1,4 @@
+from data_extraction import *
 from tabulate import tabulate
 import argparse
 import csv
@@ -8,21 +9,26 @@ import sys
 def displayData(fileName, headers):
     try:
 
-        parameter = input("What should be displayed? (full or summary): ")
         dataPath = f"docs/results/{fileName}"
         data = []
         row = []
+        currCharges = 0
+        adjs = 0
         sum = 0
 
         with open(dataPath, "r") as csvFile:
 
             reader = csv.reader(csvFile)
             next(reader)
-            print("")
 
             for rows in reader:
                 row.append(rows)
+                currCharges += int(rows[6])
+                adjs += int(rows[7])
                 sum += int(rows[8])
+
+            parameter = input("What should be displayed? (full or summary): ")
+            print("")
 
             if parameter == "full":
 
@@ -35,16 +41,50 @@ def displayData(fileName, headers):
                 headers = ["Details", "Amount"]
                 row = [
                     ["Total clients: ", clientNum],
+                    ["Current Bills: ", currCharges],
+                    ["Previous debts: ", adjs],
                     ["Total Bills: ", sum],
                 ]
 
                 table = tabulate(row, headers, tablefmt="grid")
                 print(table)
 
+            else:
+
+                print("Error: Invalid command!")
+                sys.exit(1)
+
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
         sys.exit(1)
 
+
+def extractData(sourcePath):
+
+    if os.path.exists(sourcePath):
+
+        workSheet, fileName = envSetup(sourcePath)
+        cell = workSheet["A1"]
+
+        customerInfo = iterateOnBoxes(cell)
+        fileCreation(
+            fileName,
+            headers=[
+                "Reading Date",
+                "Customer Name",
+                "Contacts",
+                "Communication App",
+                "Location",
+                "Liters Used",
+                "Net Charge",
+                "Adjustments",
+                "Final Bill",
+            ],
+        )
+        addRows(fileName, customerInfo)
+
+    else:
+        print("Error: Source File Path not Found!")
 
 def main():
 
@@ -82,6 +122,11 @@ def main():
         ]
 
         displayData(args.filename, headers)
+
+    elif args.argument == "extract":
+
+        sourcePath = "docs/source/source_data.xlsx"
+        extractData(sourcePath)
 
 
 if __name__ == "__main__":
