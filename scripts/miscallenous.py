@@ -1,5 +1,3 @@
-from tabulate import tabulate
-
 dateTime_dict = {
     1: "Jan",
     2: "Feb",
