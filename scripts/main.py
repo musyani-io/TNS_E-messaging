@@ -10,8 +10,9 @@ def displayData(fileName, headers):
     try:
 
         dataPath = f"docs/results/{fileName}"
-        data = []
         row = []
+        lumoCli = 0
+        chnkCli = 0
         currCharges = 0
         adjs = 0
         sum = 0
@@ -23,6 +24,12 @@ def displayData(fileName, headers):
 
             for rows in reader:
                 row.append(rows)
+
+                if rows[4] ==  "Lumo":
+                    lumoCli += 1
+                else:
+                    chnkCli += 1
+
                 currCharges += int(rows[6])
                 adjs += int(rows[7])
                 sum += int(rows[8])
@@ -40,10 +47,12 @@ def displayData(fileName, headers):
                 clientNum = len(row)
                 headers = ["Details", "Amount"]
                 row = [
-                    ["Total clients: ", clientNum],
-                    ["Current Bills: ", currCharges],
-                    ["Previous debts: ", adjs],
-                    ["Total Bills: ", sum],
+                    ["Lumo clients", lumoCli],
+                    ["Chanika clients", chnkCli],
+                    ["Total clients", clientNum],
+                    ["Current Bills", currCharges],
+                    ["Previous debts", adjs],
+                    ["Total Bills", sum],
                 ]
 
                 table = tabulate(row, headers, tablefmt="grid")
@@ -96,7 +105,7 @@ def main():
 
     parser.add_argument(
         "argument",
-        help="Action to for the program to do (display data, extract data, filter data or send message)",
+        help="Action to for the program to do (display data, extract data or send message)",
     )
     parser.add_argument(
         "--filename",
