@@ -8,7 +8,7 @@ def fillTemp(tempPath, var):
     # Read the file first
     try:
         with open(tempPath, "r") as temp:
-            file = temp.read()
+            file = temp.read()  # Reading a normal file
             filledTemp = file.format(**var)
 
             return filledTemp

@@ -16,7 +16,7 @@ def fileCreation(fileName, headers):
 
                 writer = csv.writer(csvFile)
                 writer.writerow(headers)
-                
+
                 print(f"File {fileName} created!✅")
 
         except Exception as Error:
@@ -39,7 +39,7 @@ def addCsvData(fileName, info):
 
                 date2 = datetime.strptime(row[0], "%d-%b-%Y")
                 if (
-                    (date - date2 <= timedelta(days=7))
+                    (date - date2 <= timedelta(days=7)) # Within a week of reading date
                     and (row[1] is not None)
                     and (row[5] > 1)
                 ):

@@ -14,7 +14,7 @@ def send_sms(message, phoneNumber):
     baseUrl = "https://api.textbee.dev/api/v1"
     requestUrl = f"{baseUrl}/gateway/devices/{deviceId}/send-sms"
 
-    headers = {"x-api-key": apiKey, "Content-Type": "application/json"}
+    headers = {"x-api-key": apiKey, "Content-Type": "application/json"} # This is for authorization and type of data to post or get
 
     payload = {
         "message": message,
@@ -35,6 +35,7 @@ def send_sms(message, phoneNumber):
 
 if __name__ == "__main__":
 
+    # For tests
     phoneNumber = "+255773422381"
     if send_sms("Hello", phoneNumber):
         print(f"Sent to {phoneNumber}✅")
