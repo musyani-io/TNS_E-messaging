@@ -5,7 +5,7 @@ import csv
 import sys
 
 
-def fileCreation(fileName):
+def fileCreation(fileName, headers):
 
     filePath = f"docs/results/{fileName}.csv"
     if not os.path.exists(filePath):
@@ -15,19 +15,8 @@ def fileCreation(fileName):
             with open(filePath, "w", newline="") as csvFile:
 
                 writer = csv.writer(csvFile)
-                headers = [
-                    "Reading Date",
-                    "Customer Name",
-                    "Contacts",
-                    "Communication App",
-                    "Location",
-                    "Liters Used",
-                    "Net Charge",
-                    "Adjustments",
-                    "Final Bill",
-                ]
-
                 writer.writerow(headers)
+                
                 print(f"File {fileName} created!✅")
 
         except Exception as Error:

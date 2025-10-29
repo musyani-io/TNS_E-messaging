@@ -113,7 +113,20 @@ if __name__ == "__main__":
         startCell = workSheet["A1"]
 
         customerInfo = iterateOnBoxes(startCell)
-        fileCreation(fileName)
+        fileCreation(
+            fileName,
+            headers=[
+                "Reading Date",
+                "Customer Name",
+                "Contacts",
+                "Communication App",
+                "Location",
+                "Liters Used",
+                "Net Charge",
+                "Adjustments",
+                "Final Bill",
+            ],
+        )
         addCsvData(fileName, customerInfo)
 
     else:
