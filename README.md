@@ -12,7 +12,7 @@ TNS E-messaging is a small tooling project whose goal is to extract monthly bill
 4. Generate messages from the CSV using the template filler (logic in `scripts/temp_filling.py`).
 5. Send messages through the SMS gateway (the HTTP call is in `scripts/send_sms.py`).
 
-## Files and roles (short)
+## Files and roles
 
 - `scripts/data_extraction.py` — opens the Excel file, walks the fixed layout boxes, extracts customer rows, and calls CSV writer.
 - `scripts/extracted_csv.py` — creates the monthly CSV and appends filtered rows.

@@ -72,7 +72,7 @@ def extractData(sourcePath):
 
     if os.path.exists(sourcePath):
 
-        workSheet, fileName = envSetup(sourcePath)
+        date, workSheet, fileName = envSetup(sourcePath)
         cell = workSheet["A1"]
 
         customerInfo = iterateOnBoxes(cell)
@@ -90,7 +90,7 @@ def extractData(sourcePath):
                 "Final Bill",
             ],
         )
-        addRows(fileName, customerInfo)
+        addRows(fileName, customerInfo, date)
 
     else:
         print("Error: Source File Path not Found!")

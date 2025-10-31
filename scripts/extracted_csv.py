@@ -23,7 +23,7 @@ def fileCreation(fileName, headers):
             sys.exit(1)
 
 
-def addRows(fileName, info):
+def addRows(fileName, info, date):
 
     filePath = f"docs/results/{fileName}.csv"
 
@@ -33,7 +33,8 @@ def addRows(fileName, info):
 
             writer = csv.writer(csvFile)
 
-            data = activeClients(filePath, info)
+            data = info
+            # data = activeClients(filePath, info, date)
             writer.writerows(data)
 
     except Exception as Error:
@@ -41,7 +42,7 @@ def addRows(fileName, info):
         sys.exit(1)
 
 
-def activeClients(filePath, data):
+def activeClients(filePath, data, date):
 
     try:
 
@@ -49,11 +50,11 @@ def activeClients(filePath, data):
 
         with open(filePath, "r") as csvFile:
 
-            date = datetime.strptime("22-Aug-2024", "%d-%b-%Y")
             # date = datetime.strftime(datetime.today(), "%d-%b-%Y")  # This is for actual usage or final testing
 
             for row in data:
 
+                date = datetime.strptime(date, "%d-%b-%Y")
                 date2 = datetime.strptime(row[0], "%d-%b-%Y")
                 if (
                     (date - date2 <= timedelta(days=7))  # Within a week of reading date

@@ -9,14 +9,18 @@ import sys
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 8, 22)  # Dummy date for configuration, will be erased later
+    date = datetime(2024, 2, 22)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enabled on final testing and usage
 
     try:
 
         workbook = openpyxl.load_workbook(sourcePath, data_only=True)
         workSheet = workbook[f"Accounts for {dateTime_dict[date.month]}, {date.year}"]
-        return workSheet, f"{dateTime_dict[date.month]}, {date.year}"
+        return (
+            date.strftime("%d-%b-%Y"),
+            workSheet,
+            f"{dateTime_dict[date.month]}, {date.year}",
+        )
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
@@ -77,23 +81,25 @@ def iterateOnBoxes(cell):
     col = 0
     customerInfo = []
     try:
-        while col < 3:
+        while col < 3:  # No. of iterations to cover all boxes (horizontally)
 
-            rows = 786  # No. of iteration to cover all boxes
+            rows = 0  # No. of iterations to cover all boxes (vertically)
 
-            while rows > 0:
+            while rows < 786:
+
+                if type(cell).__name__ == "MergedCell":
+                    rows += 1
 
                 if (
                     cell.value == "Name/Tel:"
                 ):  # Box with 'Name/Tel:' is the starting point
                     customerInfo.append(extractFromBox(cell))
 
-                cell = cell.offset(row=1, column=0)
-                rows -= 1
+                cell = startCell
+                cell = cell.offset(row=rows, column=(6 * col))
+                rows += 1
 
             col += 1
-            cell = startCell
-            cell = cell.offset(row=0, column=(6 * col))
 
         return customerInfo
 
@@ -104,4 +110,4 @@ def iterateOnBoxes(cell):
 
 if __name__ == "__main__":
 
-    print("Extraction test field!")
+    pass
