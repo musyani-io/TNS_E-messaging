@@ -9,7 +9,7 @@ import sys
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 2, 22)  # Dummy date for configuration, will be erased later
+    date = datetime(2024, 6, 22)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enabled on final testing and usage
 
     try:
@@ -110,4 +110,10 @@ def iterateOnBoxes(cell):
 
 if __name__ == "__main__":
 
-    pass
+    even = [2, 4, 6, 8]
+    prime = [2, 3, 5, 7]
+
+    list1 = set(even)
+    list2 = set(prime)
+
+    print(list1 - list2)  # What is in list1 but not in list2

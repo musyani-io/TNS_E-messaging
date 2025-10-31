@@ -33,9 +33,10 @@ def addRows(fileName, info, date):
 
             writer = csv.writer(csvFile)
 
-            data = info
-            # data = activeClients(filePath, info, date)
+            data = activeClients(filePath, info, date)
             writer.writerows(data)
+
+        print(f"{fileName} updated✅")
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
@@ -50,16 +51,14 @@ def activeClients(filePath, data, date):
 
         with open(filePath, "r") as csvFile:
 
-            # date = datetime.strftime(datetime.today(), "%d-%b-%Y")  # This is for actual usage or final testing
-
             for row in data:
 
-                date = datetime.strptime(date, "%d-%b-%Y")
-                date2 = datetime.strptime(row[0], "%d-%b-%Y")
+                # date = datetime.strptime(date, "%d-%b-%Y")
+                # date2 = datetime.strptime(row[0], "%d-%b-%Y")
                 if (
-                    (date - date2 <= timedelta(days=7))  # Within a week of reading date
-                    and (row[1] is not None)
-                    and (row[5] > 1)
+                    # (date - date2 <= timedelta(days=7))  # Within a week of reading date
+                    (row[1] is not None)
+                    and not (row[8] == 0)
                 ):
                     # Proves if the data is of same date, has a name and also, there are some liters used.
                     rowList.append(row)

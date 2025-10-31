@@ -106,12 +106,15 @@ def main():
 
     parser.add_argument(
         "argument",
-        help="Action to for the program to do (display data, extract data or send message)",
+        help="Action to for the program to do (display data, extract data, search specifics or send message)",
     )
-    parser.add_argument(
+    parser.add_argument(  # This is for display argument
         "--filename",
         type=str,
         help="Specific file name with its extension (.csv, .json)",
+    )
+    parser.add_argument(  # This is for search message (maybe for messaging later)
+        "--name", type=str, help="Full name to search for client's information"
     )
 
     args = parser.parse_args()
