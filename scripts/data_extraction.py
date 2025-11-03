@@ -9,7 +9,7 @@ import sys
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 6, 22)  # Dummy date for configuration, will be erased later
+    date = datetime(2024, 3, 22)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enabled on final testing and usage
 
     try:
@@ -68,10 +68,10 @@ def extractFromBox(cell):
         comm.value,
         commApp.value,
         location,
-        round(noneReturn(literUsed.value, 0), 1),
-        int(noneReturn(netCharge.value, 0)),
-        int(noneReturn(adjustments.value, 0)),
-        int(noneReturn(finalBill.value, 0)),
+        str(round(noneReturn(literUsed.value, 0), 1)),
+        str(int(noneReturn(netCharge.value, 0))),
+        str(int(noneReturn(adjustments.value, 0))),
+        str(int(noneReturn(finalBill.value, 0))),
     ]
 
 
@@ -110,10 +110,4 @@ def iterateOnBoxes(cell):
 
 if __name__ == "__main__":
 
-    even = [2, 4, 6, 8]
-    prime = [2, 3, 5, 7]
-
-    list1 = set(even)
-    list2 = set(prime)
-
-    print(list1 - list2)  # What is in list1 but not in list2
+    pass

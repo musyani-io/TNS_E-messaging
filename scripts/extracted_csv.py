@@ -43,27 +43,24 @@ def addRows(fileName, info, date):
         sys.exit(1)
 
 
-def activeClients(filePath, data, date):
+def activeClients(filePath, data, date):    # Prevents existing rows to being added to the CSV
 
     try:
 
-        rowList = []
+        with open(filePath, "r", newline="") as csvFile:
 
-        with open(filePath, "r") as csvFile:
+            reader = csv.reader(csvFile)
 
-            for row in data:
+            presList = []
+            for rows in reader:
+                presList.append(rows)
 
-                # date = datetime.strptime(date, "%d-%b-%Y")
-                # date2 = datetime.strptime(row[0], "%d-%b-%Y")
-                if (
-                    # (date - date2 <= timedelta(days=7))  # Within a week of reading date
-                    (row[1] is not None)
-                    and not (row[8] == 0)
-                ):
-                    # Proves if the data is of same date, has a name and also, there are some liters used.
-                    rowList.append(row)
+            updList = []
+            for line in data:
+                if line not in presList:
+                    updList.append(line)
 
-        return rowList
+            return updList
 
     except Exception as Error:
         print(f"Error: {type(Error).__name__} - {Error}")
