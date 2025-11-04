@@ -97,6 +97,10 @@ def extractData(sourcePath):
         sys.exit(1)
 
 
+def sendMessage(filePath, count):
+    print(count)
+
+
 def main():
 
     # Accepting CLI arguments
@@ -146,6 +150,12 @@ def main():
 
         sourcePath = "docs/source/source_data.xlsx"
         extractData(sourcePath)
+
+    elif args.argument == "send":
+
+        filePath = "docs/results/Feb, 2024.csv"
+        count = args.limit
+        sendMessage(filePath, count)
 
 
 if __name__ == "__main__":
