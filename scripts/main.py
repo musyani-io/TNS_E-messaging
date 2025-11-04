@@ -90,6 +90,7 @@ def extractData(sourcePath):
             ],
         )
         addRows(fileName, customerInfo, date)
+        return fileName
 
     else:
 
@@ -97,8 +98,8 @@ def extractData(sourcePath):
         sys.exit(1)
 
 
-def sendMessage(filePath, count):
-    print(count)
+def sendMessage():
+    pass
 
 
 def main():
@@ -149,13 +150,13 @@ def main():
     elif args.argument == "extract":
 
         sourcePath = "docs/source/source_data.xlsx"
-        extractData(sourcePath)
+        fileName = extractData(sourcePath)
 
     elif args.argument == "send":
 
         filePath = "docs/results/Feb, 2024.csv"
         count = args.limit
-        sendMessage(filePath, count)
+        sendMessage()
 
 
 if __name__ == "__main__":
