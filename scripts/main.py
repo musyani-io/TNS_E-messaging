@@ -92,7 +92,7 @@ def extractData(sourcePath):
         addRows(fileName, customerInfo, date)
 
     else:
-        
+
         print("Error: Source File Path not Found!")
         sys.exit(1)
 
@@ -117,10 +117,10 @@ def main():
     parser.add_argument(  # This is for search message (maybe for messaging later)
         "--name", type=str, help="Full name to search for client's information"
     )
-    parser.add_argument(    # This is the limit for extract and display of data as well as messaging people
+    parser.add_argument(  # This is the limit for extract and display of data as well as messaging people
         "--limit",
         type=int,
-        help="A number to show amount required for the earlier argument"
+        help="A number to show amount required for the earlier argument",
     )
 
     args = parser.parse_args()

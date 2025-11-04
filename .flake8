@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 88
+select = B, C, E, F, W, T4
+ignore = 
+    E501,
+    F405,
+    F403,
+exclude = 
+    .git, 
+    __pychache__,
+    .venv,
+    docs,
+    message_templates,
+    json_storage,
+    .gitignore,
+    requirements.txt

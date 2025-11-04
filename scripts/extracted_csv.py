@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from miscallenous import errorDisplay
 import os
 import csv
@@ -42,9 +41,9 @@ def addRows(fileName, info, date):
             else:
                 print("No new data!")
 
-
     except Exception as Error:
         errorDisplay(Error)
+
 
 def activeClients(data):
 
@@ -54,7 +53,9 @@ def activeClients(data):
 
         for rows in data:
 
-            if rows[1] is not None and int(rows[8]) > 50:     # Checks and removes empty names and bills
+            if (
+                rows[1] is not None and int(rows[8]) > 50
+            ):  # Checks and removes empty names and bills
                 actvClients.append(rows)
 
         return actvClients
@@ -63,7 +64,7 @@ def activeClients(data):
         errorDisplay(Error)
 
 
-def nonRecInput(filePath, data):    # Prevents existing rows to being added to the CSV
+def nonRecInput(filePath, data):  # Prevents existing rows to being added to the CSV
 
     try:
 
@@ -79,7 +80,7 @@ def nonRecInput(filePath, data):    # Prevents existing rows to being added to t
             for line in data:
                 if line not in presList:
                     updList.append(line)
-            
+
             return updList
 
     except Exception as Error:

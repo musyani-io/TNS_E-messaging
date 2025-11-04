@@ -1,5 +1,5 @@
 import csv
-import sys
+from miscallenous import errorDisplay
 from send_sms import send_sms
 from datetime import datetime, timedelta
 
@@ -26,7 +26,6 @@ def readCsv(fileName):
             reader = csv.reader(csvFile)
 
             next(reader)
-            rows = []
             for row in reader:
 
                 startDate = datetime.strptime(row[0], "%d-%b-%Y")
@@ -45,14 +44,8 @@ def readCsv(fileName):
                 tempPath = f"message_templates/{row[4]}/smart_text.txt"
 
                 # print (fillTemp(tempPath, var), row[2]) # row[2] is for contacts
-                try:
-
-                    send_sms(fillTemp(tempPath, var), "+255773422381")
-                    print(f"Sent successfully to BlaaBlaa")
-                
-                except:
-                    print(f"Error: {type(Error).__name__} - {Error}")
-                    sys.exit(1)
+                send_sms(fillTemp(tempPath, var), "+255773422381")
+                print("Sent successfully to BlaaBlaa")
 
     except Exception as Error:
         errorDisplay(Error)
