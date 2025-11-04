@@ -3,11 +3,10 @@ from datetime import datetime
 from extracted_csv import *
 import openpyxl
 
-
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 3, 22)  # Dummy date for configuration, will be erased later
+    date = datetime(2024, 1, 22)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enabled on final testing and usage
 
     try:
@@ -62,8 +61,8 @@ def extractFromBox(cell):
     return [
         dateStr,
         name.value,
-        comm.value,
-        commApp.value,
+        comm.value,    # If the number isn't provided, messages are sent to owner himself
+        noneReturn(commApp.value, "s m s"),
         location,
         str(round(noneReturn(literUsed.value, 0), 1)),
         str(int(noneReturn(netCharge.value, 0))),

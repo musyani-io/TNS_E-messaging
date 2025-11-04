@@ -32,10 +32,32 @@ def addRows(fileName, info, date):
 
             writer = csv.writer(csvFile)
 
+            info = activeClients(info)
             data = nonRecInput(filePath, info)
             writer.writerows(data)
 
-        print(f"{fileName} updated✅")
+            if len(data) != 0:
+                print(f"{fileName} updated✅")
+
+            else:
+                print("No new data!")
+
+
+    except Exception as Error:
+        errorDisplay(Error)
+
+def activeClients(data):
+
+    try:
+
+        actvClients = []
+
+        for rows in data:
+
+            if rows[1] is not None and int(rows[8]) > 50:     # Checks and removes empty names and bills
+                actvClients.append(rows)
+
+        return actvClients
 
     except Exception as Error:
         errorDisplay(Error)
@@ -57,7 +79,7 @@ def nonRecInput(filePath, data):    # Prevents existing rows to being added to t
             for line in data:
                 if line not in presList:
                     updList.append(line)
-
+            
             return updList
 
     except Exception as Error:

@@ -1,4 +1,8 @@
+from dotenv import load_dotenv
+import os
 import sys
+
+load_dotenv()
 
 dateTime_dict = {
     1: "Jan",
@@ -19,7 +23,7 @@ dateTime_dict = {
 def localToInt(localNumber):
 
     if localNumber is None:
-        intNumber = 0
+        intNumber = os.getenv("OWNER_NO")
 
     else:
         localNumber = str(localNumber)
