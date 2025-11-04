@@ -1,6 +1,7 @@
 from extracted_csv import *
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from jsonSt import *
 import os
 
 load_dotenv()
@@ -16,15 +17,15 @@ def tempFilling(filePath, fileName):
 
             presentData = []
             next(reader)
+
             for row in reader:
-                
+
                 presentData.append(row)
                 
                 filePath = f"message_templates/{row[4]}/smart_text.txt"
                 with open(filePath, "r") as f:
 
                     file = f.read()
-
                     startDate = datetime.strptime(row[0], "%d-%b-%Y")
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
@@ -41,6 +42,8 @@ def tempFilling(filePath, fileName):
                         "TigoPesa": os.getenv("TIGOPESA")
                     }
                     filledTemp = file.format(**var)
+
+                    
 
             return filledTemp
             
