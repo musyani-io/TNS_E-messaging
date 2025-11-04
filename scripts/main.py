@@ -64,8 +64,7 @@ def displayData(fileName, headers):
                 sys.exit(1)
 
     except Exception as Error:
-        print(f"Error: {type(Error).__name__} - {Error}")
-        sys.exit(1)
+        errorDisplay(Error)
 
 
 def extractData(sourcePath):
@@ -93,7 +92,9 @@ def extractData(sourcePath):
         addRows(fileName, customerInfo, date)
 
     else:
+        
         print("Error: Source File Path not Found!")
+        sys.exit(1)
 
 
 def main():

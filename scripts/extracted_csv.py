@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
+from miscallenous import errorDisplay
 import os
 import csv
-import sys
 
 
 def fileCreation(fileName, headers):
@@ -19,8 +19,7 @@ def fileCreation(fileName, headers):
                 print(f"File {fileName} created!✅")
 
         except Exception as Error:
-            print(f"Error: {type(Error).__name__} - {Error}")
-            sys.exit(1)
+            errorDisplay(Error)
 
 
 def addRows(fileName, info, date):
@@ -33,17 +32,16 @@ def addRows(fileName, info, date):
 
             writer = csv.writer(csvFile)
 
-            data = activeClients(filePath, info, date)
+            data = nonRecInput(filePath, info)
             writer.writerows(data)
 
         print(f"{fileName} updated✅")
 
     except Exception as Error:
-        print(f"Error: {type(Error).__name__} - {Error}")
-        sys.exit(1)
+        errorDisplay(Error)
 
 
-def activeClients(filePath, data, date):    # Prevents existing rows to being added to the CSV
+def nonRecInput(filePath, data):    # Prevents existing rows to being added to the CSV
 
     try:
 
@@ -63,5 +61,4 @@ def activeClients(filePath, data, date):    # Prevents existing rows to being ad
             return updList
 
     except Exception as Error:
-        print(f"Error: {type(Error).__name__} - {Error}")
-        sys.exit(1)
+        errorDisplay(Error)

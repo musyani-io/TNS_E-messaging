@@ -55,8 +55,7 @@ def readCsv(fileName):
                     sys.exit(1)
 
     except Exception as Error:
-        print(f"Error: {type(Error).__name__} - {Error}")
-        sys.exit(1)
+        errorDisplay(Error)
 
 
 if __name__ == "__main__":

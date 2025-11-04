@@ -2,8 +2,6 @@ from miscallenous import *
 from datetime import datetime
 from extracted_csv import *
 import openpyxl
-import os
-import sys
 
 
 def envSetup(sourcePath):
@@ -23,8 +21,7 @@ def envSetup(sourcePath):
         )
 
     except Exception as Error:
-        print(f"Error: {type(Error).__name__} - {Error}")
-        sys.exit(1)
+        errorDisplay(Error)
 
 
 def extractFromBox(cell):
@@ -104,8 +101,7 @@ def iterateOnBoxes(cell):
         return customerInfo
 
     except Exception as Error:
-        print(f"Error: {type(Error).__name__} - {Error}")
-        sys.exit(1)
+        errorDisplay(Error)
 
 
 if __name__ == "__main__":
