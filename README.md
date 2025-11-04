@@ -37,7 +37,7 @@ The project consists of several Python scripts:
 
 - **`scripts/temp_filling.py`:**
   - Fills message templates with extracted data.
-  - Likely uses string formatting or a templating engine (e.g., Jinja2) to generate personalized messages.
+  - Uses string formatting to generate personalized messages.
 
 ## Dependencies
 
