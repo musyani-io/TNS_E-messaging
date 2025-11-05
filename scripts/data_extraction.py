@@ -7,7 +7,7 @@ import openpyxl
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2025, 10, 22)  # Dummy date for configuration, will be erased later
+    date = datetime(2025, 10, 23)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enabled on final testing and usage
 
     try:

@@ -2,12 +2,9 @@ from miscallenous import errorDisplay
 import json
 import os
 
-storagePath = "json_storage/data.json"
 
+def jsonCreate(storagePath):
 
-def jsonCreate():
-
-    storagePath = "json_storage/data.json"
     try:
 
         if not os.path.exists(storagePath):
@@ -22,7 +19,7 @@ def jsonCreate():
         errorDisplay(Error)
 
 
-def getJsonData():
+def getJsonData(storagePath):
     # The 'data' should be written in a dictionary format
 
     try:
@@ -37,11 +34,11 @@ def getJsonData():
         errorDisplay(Error)
 
 
-def addJsonData(key, value):
+def addJsonData(storagePath, key, value):
 
     try:
 
-        presentData = getJsonData()
+        presentData = getJsonData(storagePath)
         with open(storagePath, "w") as store:
 
             presentData[key] = value

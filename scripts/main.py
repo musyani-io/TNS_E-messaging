@@ -1,8 +1,11 @@
 from data_extraction import *
 from tabulate import tabulate
+from templates import tempFilling
+from jsonSt import *
 import argparse
 import csv
 import os
+import requests
 import sys
 
 
@@ -90,7 +93,6 @@ def extractData(sourcePath):
             ],
         )
         addRows(fileName, customerInfo, date)
-        return fileName
 
     else:
 
@@ -98,8 +100,50 @@ def extractData(sourcePath):
         sys.exit(1)
 
 
-def sendMessage():
-    pass
+def sendMessage(limit):
+
+    load_dotenv()
+    store = "json_storage/sent.json"
+    storagePath = "json_storage/data.json"
+
+    try:
+
+        baseUrl = "https://api.textbee.dev/api/v1"
+        requestUrl = f"{baseUrl}/gateway/devices/{os.getenv("DEVICE_ID")}/send-sms"
+
+        headers = {
+            "x-api-key": os.getenv("API_KEY"),
+            "Content-Type": "application/json",
+        }  # This is for authorization and type of data to post or get
+
+        jsonCreate(store)
+        data = getJsonData(storagePath)
+
+        names = list(data.keys())
+        for i in range(1):
+
+            name = names[i]
+            value = data[name]
+            # print(f"Name: {name}, Contact: {value["Contact"]}, \nBody: {value["Body"]}")
+
+            payload = {
+                "message": value["Body"],
+                "recipients": ["+255773422381"],  # This'll be changed in action
+                # "recipients": [value["Contact"]] # The recipient's number should be enclosed as a list
+            }
+
+            response = requests.post(
+                url=requestUrl, headers=headers, data=json.dumps(payload)
+            )
+            response.raise_for_status()
+
+            status = {"Contact": value["Contact"], "Status": response.status_code}
+            addJsonData(store, name, status)
+
+            return response.json()
+
+    except Exception as Error:
+        errorDisplay(Error)
 
 
 def main():
@@ -152,9 +196,29 @@ def main():
         sourcePath = "docs/source/source_data.xlsx"
         extractData(sourcePath)
 
+    elif args.argument == "fill":
+
+        tempFilling(
+            datetime(2025, 10, 23),
+            f"docs/results/{args.filename}.csv",
+            f"{args.filename}.csv",
+        )
+
     elif args.argument == "send":
-        pass
+
+        print(sendMessage(0))
 
 
 if __name__ == "__main__":
     main()
+
+
+"""
+TODO:
+
+a) Write a limit for message sending (I'm thinking 40 a day, other 10 as safe margin)
+b) Write a json interactive code to delete from `data.json` when status at `sent.json` is succesful
+c) Add a 2 seconds delay between each SMS sending.
+d) Add another function to request the delivery status of the messages and update the `sent.json`
+e) Add a function to convert the `sent.json` file to a CSV to send to Senior for confirmation on deliverance
+"""

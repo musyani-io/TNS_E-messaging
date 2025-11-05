@@ -7,7 +7,7 @@ import os
 load_dotenv()
 
 
-def tempFilling(filePath, fileName):
+def tempFilling(startDate, filePath, fileName):
     # Data to be extracted for
 
     try:
@@ -27,7 +27,6 @@ def tempFilling(filePath, fileName):
                 with open(filePath, "r") as f:
 
                     file = f.read()
-                    startDate = datetime.strptime(row[0], "%d-%b-%Y")
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
                     var = {  # Dictionary for variables in message templates.
@@ -44,9 +43,10 @@ def tempFilling(filePath, fileName):
                     }
 
                     filledTemp = file.format(**var)
-                    jsonCreate()
+                    store = "json_storage/data.json"
+                    jsonCreate(store)
                     value = {"Contact": row[2], "Body": filledTemp}
-                    addJsonData(row[1], value)
+                    addJsonData(store, row[1], value)
 
     except Exception as Error:
         errorDisplay(Error)
