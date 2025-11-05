@@ -48,6 +48,34 @@ def addJsonData(storagePath, key, value):
         errorDisplay(Error)
 
 
+def delJsonData(checkPath, deletePath):
+
+    try:
+
+        sentData = getJsonData(checkPath)
+        presentData = getJsonData(deletePath)
+        sentNames = list(sentData.keys())
+
+        for i in range(len(sentNames)):
+
+            sentName = sentNames[i]
+
+            if (
+                sentData[sentName]["Status"] == 201
+            ):  # Checks for a successful request  (I SHOULD ADD A CONDITION TO CHECK IF ITS IN THE FILE)
+
+                del presentData[
+                    sentName
+                ]  # Delete the successful key from the data.json
+
+        with open(deletePath, "w") as file:
+
+            json.dump(presentData, file, indent=4)
+
+    except Exception as Error:
+        errorDisplay(Error)
+
+
 if __name__ == "__main__":
 
-    pass
+    delJsonData("json_storage/sent.json", "json_storage/data.json")

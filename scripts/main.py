@@ -6,6 +6,7 @@ import argparse
 import csv
 import os
 import requests
+import time
 import sys
 
 
@@ -120,7 +121,19 @@ def sendMessage(limit):
         data = getJsonData(storagePath)
 
         names = list(data.keys())
-        for i in range(1):
+
+        # Handling the limit value
+        if limit is not None:
+
+            if limit > 40 or limit < 1:
+                if limit > len(names):
+                    limit = len(names)
+                else:
+                    limit = 40
+        else:
+            limit = 40
+
+        for i in range(limit):
 
             name = names[i]
             value = data[name]
@@ -136,11 +149,18 @@ def sendMessage(limit):
                 url=requestUrl, headers=headers, data=json.dumps(payload)
             )
             response.raise_for_status()
+            time.sleep(2.5)
 
-            status = {"Contact": value["Contact"], "Status": response.status_code}
+            status = {
+                "smsBatchId": response.json()["data"]["smsBatchId"],
+                "Contact": value["Contact"],
+                "Status": response.status_code,
+            }
             addJsonData(store, name, status)
+            # delJsonData(store, storagePath)
 
-            return response.json()
+            # return response.json()
+            print(f"Request for {name} is sent✅")
 
     except Exception as Error:
         errorDisplay(Error)
@@ -206,7 +226,7 @@ def main():
 
     elif args.argument == "send":
 
-        print(sendMessage(0))
+        sendMessage(args.limit)
 
 
 if __name__ == "__main__":
@@ -216,9 +236,7 @@ if __name__ == "__main__":
 """
 TODO:
 
-a) Write a limit for message sending (I'm thinking 40 a day, other 10 as safe margin)
-b) Write a json interactive code to delete from `data.json` when status at `sent.json` is succesful
-c) Add a 2 seconds delay between each SMS sending.
-d) Add another function to request the delivery status of the messages and update the `sent.json`
-e) Add a function to convert the `sent.json` file to a CSV to send to Senior for confirmation on deliverance
+- Write a json interactive code to delete from `data.json` when status at `sent.json` is succesful
+- Add another function to request the delivery status of the messages and update the `sent.json`
+- Add a function to convert the `sent.json` file to a CSV to send to Senior for confirmation on deliverance
 """

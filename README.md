@@ -1,87 +1,49 @@
-# TNS E-message Project - Automated Data Extraction and Messaging
+# TNS E-messaging Project
 
 ## Overview
 
-This project automates the process of extracting data from a source (likely an Excel file), transforming it, and sending personalized messages (SMS, WhatsApp, etc.) to clients.
+This project automates data extraction and personalized messaging (SMS/WhatsApp) for streamlined billing communication.
 
 ## Key Components
 
-The project consists of several Python scripts:
-
-- **`scripts/data_extraction.py`:**
-
-  - Responsible for extracting data from the source data file (e.g., Excel).
-  - Handles data cleaning, transformation, and validation.
-  - Uses libraries like `openpyxl` to interact with the data file.
-
-- **`scripts/extracted_csv.py`:**
-
-  - Handles the extraction and reading of CSV files, likely outputted by the data extraction script.
-
-- **`scripts/main.py`:**
-
-  - The main entry point of the application.
-  - Orchestrates the data extraction, message generation, and sending processes.
-  - Likely contains the main application logic and user interface (if any).
-
-- **`scripts/miscallenous.py`:**
-
-  - A file with a typo and probably contains miscellenous tools and functions used by other functions.
-  - May include helper functions, utility classes, or other code that doesn't fit neatly into other modules.
-
-- **`scripts/send_sms.py`:**
-
-  - Handles sending SMS messages to clients.
-  - Uses a messaging API (e.g., TextBee) to send messages.
-  - Includes functionality for template-based messaging and error handling.
-
-- **`scripts/temp_filling.py`:**
-  - Fills message templates with extracted data.
-  - Uses string formatting to generate personalized messages.
+- **`scripts/data_extraction.py`**: Extracts and cleans data from source files (e.g., Excel), using `openpyxl` or `pandas`.
+- **`scripts/extracted_csv.py`**: Handles CSV file extraction and processing.
+- **`scripts/main.py`**: Orchestrates the core workflow: data processing, message handling, and execution via CLI arguments.
+- **`scripts/miscallenous.py`**: Contains helper functions and utility code.
+- **`scripts/templates.py`**: Populates message templates with client-specific data.
 
 ## Dependencies
 
-The project likely depends on the following Python libraries:
+- `openpyxl` (Excel data extraction)
+- `requests` (HTTP requests for TextBee API)
+- `python-dotenv` (Environment variable management)
+- `csv` (CSV file handling)
+- `tabulate` (Formatted table output)
+- `flake8, flake8-comprehensions, flake8-docstrings` (Linting)
 
-- `openpyxl` (for Excel data extraction)
-- `requests` (for making HTTP requests to messaging APIs)
-- `python-dotenv` (for loading environment variables)
-- `csv` (for CSV file handling)
+Install via: `pip install -r requirements.txt`
 
-A `requirements.txt` file is included to list all the necessary dependencies.
+## Setup
 
-## Setup and Installation
+1. Clone the repository.
+2. Create a virtual environment: `python3 -m venv venv`
+3. Activate: `source venv/bin/activate` (Linux/macOS) or `venv\Scripts\activate` (Windows)
+4. Install dependencies: `pip install -r requirements.txt`
+5. Configure environment variables in `.env`:
 
-1. Clone the repository:
-
-   ```bash
-   git clone <https://github.com/musyani-io/TNS_E-messaging.git>
    ```
-
-2. Create a virtual environment:
-
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Linux/macOS
+   API_KEY=<your_textbee_api_key>
+   DEVICE_ID=<your_textbee_device_id>
    ```
-
-3. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Configure environment variables:
-
-   - Create a `.env` file in the root directory of the project.
-   - Add the following environment variables, replacing the placeholders with your actual values like API_KEY and DEVICE_ID
 
 ## Usage
 
-1. Run the `scripts/main.py` script:
+Run `scripts/main.py` with appropriate command-line arguments (see `--help` for options):
 
-   ```bash
-   python scripts/main.py
-   ```
+```bash
+python scripts/main.py <command> --filename <filename> --name <name> --limit <limit>
+```
 
-2. Follow the instructions in the user interface (if any) or configure the script using command-line arguments (if applicable).
+Available commands: `display`, `extract`, `fill`, `send`
+
+Coding style is enforced with `flake8`.
