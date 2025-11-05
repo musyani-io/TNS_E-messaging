@@ -7,8 +7,8 @@ load_dotenv()
 dateTime_dict = {
     1: "Jan",
     2: "Feb",
-    3: "March",
-    4: "April",
+    3: "Mar",
+    4: "Apr",
     5: "May",
     6: "June",
     7: "July",
@@ -18,6 +18,10 @@ dateTime_dict = {
     11: "Nov",
     12: "Dec",
 }
+
+specialCases = [
+    "Little Doves' Centre",  # Complicated computations
+]
 
 
 def localToInt(localNumber):

@@ -117,7 +117,7 @@ def main():
     parser.add_argument(  # This is for display argument
         "--filename",
         type=str,
-        help="Specific file name with its extension (.csv, .json)",
+        help="Specific file name (the exact name without extension)",
     )
     parser.add_argument(  # This is for search message (maybe for messaging later)
         "--name", type=str, help="Full name to search for client's information"
@@ -145,18 +145,15 @@ def main():
             "Final Bill",
         ]
 
-        displayData(args.filename, headers)
+        displayData(f"{args.filename}.csv", headers)
 
     elif args.argument == "extract":
 
         sourcePath = "docs/source/source_data.xlsx"
-        fileName = extractData(sourcePath)
+        extractData(sourcePath)
 
     elif args.argument == "send":
-
-        filePath = "docs/results/Feb, 2024.csv"
-        count = args.limit
-        sendMessage()
+        pass
 
 
 if __name__ == "__main__":

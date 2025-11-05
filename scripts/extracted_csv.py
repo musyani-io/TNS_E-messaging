@@ -1,4 +1,4 @@
-from miscallenous import errorDisplay
+from miscallenous import errorDisplay, specialCases
 import os
 import csv
 
@@ -54,8 +54,11 @@ def activeClients(data):
         for rows in data:
 
             if (
-                rows[1] is not None and int(rows[8]) > 50
-            ):  # Checks and removes empty names and bills
+                rows[1] is not None
+                and int(rows[8]) > 50
+                and rows[1] not in specialCases
+            ):  # Checks and removes empty names and bills, excludes names in specialCases too
+
                 actvClients.append(rows)
 
         return actvClients

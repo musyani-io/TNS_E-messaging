@@ -5,6 +5,7 @@ ignore =
     E501,
     F405,
     F403,
+    W503
 exclude = 
     .git, 
     __pychache__,

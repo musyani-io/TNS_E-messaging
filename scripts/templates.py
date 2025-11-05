@@ -6,6 +6,7 @@ import os
 
 load_dotenv()
 
+
 def tempFilling(filePath, fileName):
     # Data to be extracted for
 
@@ -21,7 +22,7 @@ def tempFilling(filePath, fileName):
             for row in reader:
 
                 presentData.append(row)
-                
+
                 filePath = f"message_templates/{row[4]}/smart_text.txt"
                 with open(filePath, "r") as f:
 
@@ -39,17 +40,18 @@ def tempFilling(filePath, fileName):
                         "Deadline Date": newDate,
                         "AZAMPESA": os.getenv("AZAMPESA"),
                         "LIPA_NAMBA": os.getenv("LIPA_NAMBA"),
-                        "TigoPesa": os.getenv("TIGOPESA")
+                        "TigoPesa": os.getenv("TIGOPESA"),
                     }
+
                     filledTemp = file.format(**var)
+                    jsonCreate()
+                    value = {"Contact": row[2], "Body": filledTemp}
+                    addJsonData(row[1], value)
 
-                    
-
-            return filledTemp
-            
     except Exception as Error:
         errorDisplay(Error)
 
+
 if __name__ == "__main__":
 
-    print(tempFilling("docs/results/Feb, 2024.csv", "Feb-2024"))
+    print(tempFilling("docs/results/Oct, 2025.csv", "Oct-2024"))

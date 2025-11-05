@@ -7,13 +7,13 @@ import openpyxl
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2024, 2, 22)  # Dummy date for configuration, will be erased later
+    date = datetime(2025, 10, 22)  # Dummy date for configuration, will be erased later
     # date = datetime.today()  # This will be enabled on final testing and usage
 
     try:
 
         workbook = openpyxl.load_workbook(sourcePath, data_only=True)
-        workSheet = workbook[f"Accounts for {dateTime_dict[date.month]}, {date.year}"]
+        workSheet = workbook[f"Accounts for {dateTime_dict[date.month]} {date.year}"]
         return (
             date.strftime("%d-%b-%Y"),
             workSheet,
@@ -34,6 +34,10 @@ def extractFromBox(cell):
 
     # Extract date
     readingDate = jumpTo(1, 4)
+    if isinstance(readingDate.value, str):
+        readingDate.value = None
+
+    readingDate.value = noneReturn(readingDate.value, datetime(2000, 1, 1))
     dateStr = readingDate.value.strftime("%d-%b-%Y")
 
     # Extract name and contact info
@@ -82,7 +86,7 @@ def iterateOnBoxes(cell):
 
             rows = 0  # No. of iterations to cover all boxes (vertically)
 
-            while rows < 786:
+            while rows < 910:
 
                 if type(cell).__name__ == "MergedCell":
                     rows += 1
