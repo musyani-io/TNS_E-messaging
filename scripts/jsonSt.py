@@ -1,4 +1,6 @@
 from miscallenous import errorDisplay
+from extracted_csv import fileCreation
+import csv
 import json
 import os
 
@@ -77,6 +79,46 @@ def delJsonData(checkPath, deletePath):
         errorDisplay(Error)
 
 
+def jsonToCsv(jsonPath, csvPath):
+
+    try:
+
+        deliveredList = []
+        validRow = []
+        fileCreation(csvPath, headers=["Name", "Status"])
+        with open(jsonPath, "r") as file:
+
+            data = json.load(file)
+
+            names = list(data.keys())
+
+            for name in names:
+                if data[name]["Status"] == 201:
+                    deliveredList.append([name, "Delivered"])
+
+        with open("docs/results/delivered.csv", "r", newline="") as csvFile:
+
+            reader = csv.reader(csvFile)
+
+            for name in deliveredList:
+                if name not in reader:
+                    validRow.append(name)
+
+        with open("docs/results/delivered.csv", "a", newline="") as csvFile:
+
+            writer = csv.writer(csvFile)
+
+            writer.writerows(validRow)
+
+            if len(validRow) > 0:
+                print("Delivery file updated!✅")
+            else:
+                print("No new delivered contact")
+
+    except Exception as Error:
+        errorDisplay(Error)
+
+
 if __name__ == "__main__":
 
-    delJsonData("json_storage/sent.json", "json_storage/data.json")
+    jsonToCsv("json_storage/sent.json", "delivered")

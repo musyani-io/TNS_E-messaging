@@ -2,9 +2,18 @@ from extracted_csv import *
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from jsonSt import *
+import locale
 import os
 
 load_dotenv()
+
+
+def formatNumbers(num):
+    locale.setlocale(locale.LC_ALL, "en_GB.UTF-8")
+    if isinstance(num, float):
+        return locale.format_string("%.1f", num, grouping=True)
+    else:
+        return locale.format_string("%d", num, grouping=True)
 
 
 def tempFilling(startDate, filePath, fileName):
@@ -32,10 +41,10 @@ def tempFilling(startDate, filePath, fileName):
                     var = {  # Dictionary for variables in message templates.
                         "Month, year": fileName,
                         "Customer Name": row[1],
-                        "Liters Used": row[5],
-                        "Net Charge": row[6],
-                        "Adjustments": row[7],
-                        "Final Bill": row[8],
+                        "Liters Used": formatNumbers(float(row[5])),
+                        "Net Charge": formatNumbers(int(row[6])),
+                        "Adjustments": formatNumbers(int(row[7])),
+                        "Final Bill": formatNumbers(int(row[8])),
                         "Deadline Date": newDate,
                         "AZAMPESA": os.getenv("AZAMPESA"),
                         "LIPA_NAMBA": os.getenv("LIPA_NAMBA"),

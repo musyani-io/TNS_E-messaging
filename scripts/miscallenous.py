@@ -21,6 +21,7 @@ dateTime_dict = {
 
 specialCases = [
     "Little Doves' Centre",  # Complicated computations
+    "Boniface Kirundwa",  # Disconnected client
 ]
 
 

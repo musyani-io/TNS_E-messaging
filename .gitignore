@@ -3,3 +3,4 @@
 *.json
 docs
 *__pycache__
+json_storage

@@ -35,7 +35,7 @@ def addRows(fileName, info, date):
             data = nonRecInput(filePath, info)
             writer.writerows(data)
 
-            if len(data) != 0:
+            if len(data) > 0:
                 print(f"{fileName} updated✅")
 
             else:

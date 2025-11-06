@@ -141,8 +141,10 @@ def sendMessage(limit):
 
             payload = {
                 "message": value["Body"],
-                "recipients": ["+255773422381"],  # This'll be changed in action
-                # "recipients": [value["Contact"]] # The recipient's number should be enclosed as a list
+                # "recipients": ["+255773422381"],  # This'll be changed in action, for testing purposes only.
+                "recipients": [
+                    value["Contact"]
+                ],  # The recipient's number should be enclosed as a list
             }
 
             response = requests.post(
@@ -158,6 +160,7 @@ def sendMessage(limit):
             }
             addJsonData(store, name, status)
             delJsonData(store, storagePath)
+            jsonToCsv(store, "delivered")
 
             # return response.json()
             print(f"Request for {name} is sent✅")
