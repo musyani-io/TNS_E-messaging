@@ -54,6 +54,7 @@ def delJsonData(checkPath, deletePath):
 
         sentData = getJsonData(checkPath)
         presentData = getJsonData(deletePath)
+        presentNames = list(presentData.keys())
         sentNames = list(sentData.keys())
 
         for i in range(len(sentNames)):
@@ -61,7 +62,7 @@ def delJsonData(checkPath, deletePath):
             sentName = sentNames[i]
 
             if (
-                sentData[sentName]["Status"] == 201
+                sentData[sentName]["Status"] == 201 and sentName in presentNames
             ):  # Checks for a successful request  (I SHOULD ADD A CONDITION TO CHECK IF ITS IN THE FILE)
 
                 del presentData[

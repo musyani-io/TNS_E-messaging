@@ -149,7 +149,7 @@ def sendMessage(limit):
                 url=requestUrl, headers=headers, data=json.dumps(payload)
             )
             response.raise_for_status()
-            time.sleep(2.5)
+            time.sleep(1)
 
             status = {
                 "smsBatchId": response.json()["data"]["smsBatchId"],
@@ -157,7 +157,7 @@ def sendMessage(limit):
                 "Status": response.status_code,
             }
             addJsonData(store, name, status)
-            # delJsonData(store, storagePath)
+            delJsonData(store, storagePath)
 
             # return response.json()
             print(f"Request for {name} is sent✅")
@@ -231,12 +231,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-"""
-TODO:
-
-- Write a json interactive code to delete from `data.json` when status at `sent.json` is succesful
-- Add another function to request the delivery status of the messages and update the `sent.json`
-- Add a function to convert the `sent.json` file to a CSV to send to Senior for confirmation on deliverance
-"""
