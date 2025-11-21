@@ -45,7 +45,7 @@ def extractFromBox(cell):
     comm = jumpTo(-1, 1)
     if comm.value is None:
         comm = jumpTo(0, 3)
-    
+
     comm.value = localToInt(comm.value)
 
     # Extract communication application and location
