@@ -42,7 +42,10 @@ def extractFromBox(cell):
 
     # Extract name and contact info
     name = jumpTo(0, 1)
-    comm = jumpTo(0, 3)
+    comm = jumpTo(-1, 1)
+    if comm.value is None:
+        comm = jumpTo(0, 3)
+    
     comm.value = localToInt(comm.value)
 
     # Extract communication application and location
