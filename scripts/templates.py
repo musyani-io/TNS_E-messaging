@@ -38,8 +38,10 @@ def tempFilling(startDate, filePath, fileName):
                     file = f.read()
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
+                    yearName = fileName[:9]
+
                     var = {  # Dictionary for variables in message templates.
-                        "Month, year": fileName,
+                        "Month, year": yearName,
                         "Customer Name": row[1],
                         "Liters Used": formatNumbers(float(row[5])),
                         "Net Charge": formatNumbers(int(row[6])),
