@@ -6,10 +6,9 @@ Matumizi: Lt {Liters Used}
 Gharama yake: Sh {Net Charge}
 Marekebisho kuhusisha ankara iliyopita: Sh {Adjustments}
 ANKARA UNAYOTAKIWA KULIPA SASA: Sh {Final Bill}
-TAFADHALI LIPA ANKARA KWA UKAMILIFU kabla ya {Deadline Date} kwa moja ya namba hizi:
+TAFADHALI LIPA ANKARA KWA UKAMILIFU kabla ya {Deadline Date}, AMA
 1. Taslimu Kituoni au
 2. AZAMPESA namba {AZAMPESA} au
 3. LIPA NAMBA (Tigo) {LIPA_NAMBA} au
-4. TigoPesa {TigoPesa}
 Jina DAN MUSYANI
 Ahsante.
