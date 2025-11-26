@@ -1,6 +1,6 @@
 from data_extraction import *
 from tabulate import tabulate
-from templates import tempFilling
+from templates import tempFilling, formatNumbers
 from jsonSt import *
 import argparse
 import csv
@@ -54,9 +54,9 @@ def displayData(fileName, headers):
                     ["Lumo clients", lumoCli],
                     ["Chanika clients", chnkCli],
                     ["Total clients", clientNum],
-                    ["Current Bills", currCharges],
-                    ["Previous debts", adjs],
-                    ["Total Bills", sum],
+                    ["Current Bills", formatNumbers(currCharges)],
+                    ["Previous debts", formatNumbers(adjs)],
+                    ["Total Bills", formatNumbers(sum)],
                 ]
 
                 table = tabulate(row, headers, tablefmt="grid")

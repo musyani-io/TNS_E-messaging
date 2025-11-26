@@ -32,6 +32,11 @@ def tempFilling(startDate, filePath, fileName):
 
                 presentData.append(row)
 
+                sentClients = getJsonData("json_storage/sent.json")
+
+                if row[1] in sentClients:
+                    continue
+
                 filePath = f"message_templates/{row[4]}/smart_text.txt"
                 with open(filePath, "r") as f:
 
