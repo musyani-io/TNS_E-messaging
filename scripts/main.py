@@ -8,7 +8,6 @@ import os
 import requests
 import time
 import sys
-from pprint import pprint
 
 
 def displayData(fileName, headers):
@@ -169,8 +168,9 @@ def sendMessage(limit):
     except Exception as Error:
         errorDisplay(Error)
 
+
 def deliveryMessage():
-    
+
     try:
 
         sentPath = "json_storage/sent.json"
@@ -185,13 +185,13 @@ def deliveryMessage():
         deliveryCount = 0
 
         for clients in sentClients.keys():
-        
+
             baseUrl = "https://api.textbee.dev/api/v1"
             batchID = sentClients[clients]["smsBatchId"]
             requestUrl = f"{baseUrl}/gateway/devices/{os.getenv("DEVICE_ID")}/sms-batch/{batchID}"
             headers = {
-            "x-api-key": os.getenv("API_KEY"),
-            } 
+                "x-api-key": os.getenv("API_KEY"),
+            }
 
             response = requests.get(url=requestUrl, headers=headers)
             response.raise_for_status()
@@ -207,20 +207,23 @@ def deliveryMessage():
 
             totalCount += 1
 
-            value = {"type": deliveryStatus["data"]["messages"][0]["type"], "status": deliveryStatus["data"]["messages"][0]["status"]}
+            value = {
+                "type": deliveryStatus["data"]["messages"][0]["type"],
+                "status": deliveryStatus["data"]["messages"][0]["status"],
+            }
 
             addJsonData(deliveryPath, clients, value)
             print(f"{clients} checked ✅")
 
         headers = ["Details", "Amount"]
         row = [
-                ["Total Clients", totalCount],
-                ["SMS Sent-only", sentCount],
-                ["SMS Delivered", deliveryCount],
-                ["SMS Failed", failedCount],
-                ["Sent Percent", round(((sentCount / totalCount) * 100), 2)],
-                ["Delivered Percent", round(((deliveryCount / totalCount) * 100), 2)],
-                ["Failed Percent", round(((failedCount / totalCount) * 100), 2)]
+            ["Total Clients", totalCount],
+            ["SMS Sent-only", sentCount],
+            ["SMS Delivered", deliveryCount],
+            ["SMS Failed", failedCount],
+            ["Sent Percent", round(((sentCount / totalCount) * 100), 2)],
+            ["Delivered Percent", round(((deliveryCount / totalCount) * 100), 2)],
+            ["Failed Percent", round(((failedCount / totalCount) * 100), 2)],
         ]
 
         table = tabulate(row, headers, tablefmt="grid")
