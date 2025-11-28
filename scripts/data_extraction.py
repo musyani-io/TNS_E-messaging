@@ -95,7 +95,7 @@ def iterateOnBoxes(cell):
                     rows += 1
 
                 if (
-                    cell.value == "Name/Tel:"
+                    isinstance(cell.value, str) and "Name/Tel:" in cell.value
                 ):  # Box with 'Name/Tel:' is the starting point
                     customerInfo.append(extractFromBox(cell))
 

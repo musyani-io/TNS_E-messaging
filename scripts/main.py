@@ -183,6 +183,8 @@ def deliveryMessage():
         failedCount = 0
         sentCount = 0
         deliveryCount = 0
+        pendingCount = 0
+        unknownCount = 0
 
         for clients in sentClients.keys():
 
@@ -204,6 +206,10 @@ def deliveryMessage():
                 failedCount += 1
             elif deliveryStatus["data"]["messages"][0]["status"] == "delivered":
                 deliveryCount += 1
+            elif deliveryStatus["data"]["messages"][0]["status"] == "pending":
+                pendingCount += 1
+            elif deliveryStatus["data"]["messages"][0]["status"] == "unknown":
+                unknownCount += 1
 
             totalCount += 1
 
@@ -221,6 +227,8 @@ def deliveryMessage():
             ["SMS Sent-only", sentCount],
             ["SMS Delivered", deliveryCount],
             ["SMS Failed", failedCount],
+            ["SMS Pending", pendingCount],
+            ["Unknown Status", unknownCount],
             ["Sent Percent", round(((sentCount / totalCount) * 100), 2)],
             ["Delivered Percent", round(((deliveryCount / totalCount) * 100), 2)],
             ["Failed Percent", round(((failedCount / totalCount) * 100), 2)],
