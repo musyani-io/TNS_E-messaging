@@ -224,12 +224,12 @@ def deliveryMessage():
         headers = ["Details", "Amount"]
         row = [
             ["Total Clients", totalCount],
-            ["SMS Sent-only", sentCount],
+            ["SMS Sent", sentCount + deliveryCount],
             ["SMS Delivered", deliveryCount],
             ["SMS Failed", failedCount],
             ["SMS Pending", pendingCount],
             ["Unknown Status", unknownCount],
-            ["Sent Percent", round(((sentCount / totalCount) * 100), 2)],
+            ["Sent Percent", round((((sentCount + deliveryCount) / totalCount) * 100), 2)],
             ["Delivered Percent", round(((deliveryCount / totalCount) * 100), 2)],
             ["Failed Percent", round(((failedCount / totalCount) * 100), 2)],
         ]
