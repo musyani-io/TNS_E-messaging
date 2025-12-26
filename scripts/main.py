@@ -75,7 +75,7 @@ def extractData(sourcePath):
 
     if os.path.exists(sourcePath):
 
-        date, workSheet, fileName = envSetup(sourcePath)
+        workSheet, fileName = envSetup(sourcePath)
         cell = workSheet["A1"]
 
         customerInfo = iterateOnBoxes(cell)
@@ -93,7 +93,7 @@ def extractData(sourcePath):
                 "Final Bill",
             ],
         )
-        addRows(fileName, customerInfo, date)
+        addRows(fileName, customerInfo)
 
     else:
 

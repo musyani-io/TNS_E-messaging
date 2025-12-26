@@ -7,15 +7,15 @@ import openpyxl
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    date = datetime(2025, 12, 20)  # Dummy date for configuration, will be erased later
-    # date = datetime.today()  # This will be enabled on final testing and usage
+    # date = datetime(2025, 12, 20)  # Dummy date for configuration, will be erased later
+    date = datetime.today()  # This will be enabled on final testing and usage
 
     try:
 
         workbook = openpyxl.load_workbook(sourcePath, data_only=True)
-        workSheet = workbook["December '25"]
+        sheetName = input("Exact name of the sheet: ")
+        workSheet = workbook[sheetName]
         return (
-            date.strftime("%d-%b-%Y"),
             workSheet,
             f"{dateTime_dict[date.month]}, {date.year}",
         )

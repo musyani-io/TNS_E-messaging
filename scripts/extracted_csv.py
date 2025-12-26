@@ -21,7 +21,7 @@ def fileCreation(fileName, headers):
             errorDisplay(Error)
 
 
-def addRows(fileName, info, date):
+def addRows(fileName, info):
 
     filePath = f"docs/results/{fileName}.csv"
 
