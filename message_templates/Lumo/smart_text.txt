@@ -9,5 +9,5 @@ ANKARA UNAYOTAKIWA KULIPA SASA: Sh {Final Bill}
 TAFADHALI LIPA ANKARA KWA UKAMILIFU kabla ya {Deadline Date} kwa moja ya namba hizi:
 1. AZAMPESA namba {AZAMPESA} au
 2. LIPA NAMBA (Tigo) {LIPA_NAMBA} au
-Jina DAN MUSYANI
+Jina {RECIEVER_NAME}
 Ahsante.
