@@ -17,7 +17,7 @@ def envSetup(sourcePath):
         workSheet = workbook[sheetName]
         return (
             workSheet,
-            f"{dateTime_dict[date.month]}, {date.year}",
+            sheetName,
         )
 
     except Exception as Error:
@@ -52,11 +52,10 @@ def extractFromBox(cell):
     commApp = jumpTo(-1, 3)
     colorBox = jumpTo(-1, 0)
     topColor = colorBox.border.top.color
-    color = topColor.index if topColor else None
-    if color is None:
-        location = "Lumo"
-    else:
+    if topColor.rgb == "FFC00000": # Orange used for Chanika clients
         location = "Chanika"
+    else:
+        location = "Lumo"
 
     # Extract liters used and net charge
     literUsed = jumpTo(4, 4)

@@ -9,7 +9,7 @@
 
 ## EXTRACTION PART
 
-[ ] Better detection for location through border colours.
+[x] Better detection for location through border colours.
 [ ] After a succesful extraction, creation of _data.json_, _sent.json_ and _report.csv_ should be implemented.
 
 ## TEMPLATES PART
