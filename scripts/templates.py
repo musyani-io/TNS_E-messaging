@@ -2,6 +2,7 @@ from extracted_csv import *
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from jsonSt import *
+import calendar
 import locale
 import os
 
@@ -43,10 +44,8 @@ def tempFilling(startDate, filePath, fileName):
                     file = f.read()
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
-                    yearName = fileName[:9]
-
                     var = {  # Dictionary for variables in message templates.
-                        "Month, year": yearName,
+                        "Month, year": f"{calendar.month_abbr[startDate.month]}, {startDate.year}",
                         "Customer Name": row[1],
                         "Liters Used": formatNumbers(float(row[5])),
                         "Net Charge": formatNumbers(int(row[6])),
@@ -56,6 +55,7 @@ def tempFilling(startDate, filePath, fileName):
                         "AZAMPESA": os.getenv("AZAMPESA"),
                         "LIPA_NAMBA": os.getenv("LIPA_NAMBA"),
                         "TigoPesa": os.getenv("TIGOPESA"),
+                        "RECIEVER_NAME": os.getenv("RECIEVER_NAME"),
                     }
 
                     filledTemp = file.format(**var)
@@ -68,4 +68,4 @@ def tempFilling(startDate, filePath, fileName):
 
 if __name__ == "__main__":
 
-    print(tempFilling("docs/results/Oct, 2025.csv", "Oct-2024"))
+    tempFilling(datetime.today(), "docs/results/December '25.csv", "December '25")

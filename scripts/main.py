@@ -272,7 +272,6 @@ def main():
     parser.add_argument(
         "argument",
         type=str,
-        required=True,
         help="Action to for the program to do (display, extract, fill, send or deliver)",
     )
     parser.add_argument(  # This is for display argument
@@ -312,7 +311,7 @@ def main():
     elif args.argument == "fill":
 
         tempFilling(
-            datetime.today,
+            datetime.today(),
             f"docs/results/{args.filename}.csv",
             f"{args.filename}.csv",
         )
