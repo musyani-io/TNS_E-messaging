@@ -31,7 +31,6 @@ def addRows(fileName, info):
 
             writer = csv.writer(csvFile)
 
-            info = activeClients(info)
             data = nonRecInput(filePath, info)
             writer.writerows(data)
 
@@ -54,8 +53,7 @@ def activeClients(data):
         for rows in data:
 
             if (
-                rows[1] is not None
-                and int(rows[8]) > 50
+                rows[1] is not None and int(rows[8]) > 50
             ):  # Checks and removes empty names and bills, excludes names in specialCases too
 
                 actvClients.append(rows)

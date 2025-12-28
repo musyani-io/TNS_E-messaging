@@ -4,6 +4,7 @@ import sys
 
 load_dotenv()
 
+
 def localToInt(localNumber):
 
     if localNumber is None:

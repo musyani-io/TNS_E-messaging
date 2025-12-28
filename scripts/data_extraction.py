@@ -7,9 +7,6 @@ import openpyxl
 def envSetup(sourcePath):
     # Returns the required worksheet to work at that time!
 
-    # date = datetime(2025, 12, 20)  # Dummy date for configuration, will be erased later
-    date = datetime.today()  # This will be enabled on final testing and usage
-
     try:
 
         workbook = openpyxl.load_workbook(sourcePath, data_only=True)
@@ -52,7 +49,7 @@ def extractFromBox(cell):
     commApp = jumpTo(-1, 3)
     colorBox = jumpTo(-1, 0)
     topColor = colorBox.border.top.color
-    if topColor.rgb == "FFC00000": # Orange used for Chanika clients
+    if topColor.rgb == "FFC00000":  # Orange used for Chanika clients
         location = "Chanika"
     else:
         location = "Lumo"

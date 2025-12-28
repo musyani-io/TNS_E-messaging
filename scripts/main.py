@@ -93,6 +93,9 @@ def extractData(sourcePath):
                 "Final Bill",
             ],
         )
+        customerInfo = activeClients(
+            customerInfo
+        )  # Checks for validity of extracted data
         addRows(fileName, customerInfo)
 
         # Creation of json storage files
@@ -205,12 +208,23 @@ def deliveryMessage():
 
             if deliveryStatus["data"]["messages"][0]["status"] == "sent":
                 sentCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "failed":
+                addRows(
+                    "failed",
+                    [
+                        clients,
+                        deliveryStatus["data"]["messages"][0]["status"],
+                    ],
+                )
                 failedCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "delivered":
                 deliveryCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "pending":
                 pendingCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "unknown":
                 unknownCount += 1
 
@@ -232,7 +246,10 @@ def deliveryMessage():
             ["SMS Failed", failedCount],
             ["SMS Pending", pendingCount],
             ["Unknown Status", unknownCount],
-            ["Sent Percent", round((((sentCount + deliveryCount) / totalCount) * 100), 2)],
+            [
+                "Sent Percent",
+                round((((sentCount + deliveryCount) / totalCount) * 100), 2),
+            ],
             ["Delivered Percent", round(((deliveryCount / totalCount) * 100), 2)],
             ["Failed Percent", round(((failedCount / totalCount) * 100), 2)],
         ]
