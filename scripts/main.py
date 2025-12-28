@@ -271,15 +271,14 @@ def main():
 
     parser.add_argument(
         "argument",
-        help="Action to for the program to do (display data, extract data, search specifics or send message)",
+        type=str,
+        required=True,
+        help="Action to for the program to do (display, extract, fill, send or deliver)",
     )
     parser.add_argument(  # This is for display argument
         "--filename",
         type=str,
-        help="Specific file name (the exact name without extension)",
-    )
-    parser.add_argument(  # This is for search message (maybe for messaging later)
-        "--name", type=str, help="Full name to search for client's information"
+        help="Specific file name required for the action (the exact name without extension)",
     )
     parser.add_argument(  # This is the limit for extract and display of data as well as messaging people
         "--limit",
