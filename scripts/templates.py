@@ -59,10 +59,8 @@ def tempFilling(startDate, filePath, fileName):
                     }
 
                     filledTemp = file.format(**var)
-                    store = "json_storage/data.json"
-                    jsonCreate(store)
                     value = {"Contact": row[2], "Body": filledTemp}
-                    addJsonData(store, row[1], value)
+                    addJsonData("json_storage/data.json", row[1], value)
 
     except Exception as Error:
         errorDisplay(Error)

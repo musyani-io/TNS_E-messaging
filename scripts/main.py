@@ -95,6 +95,10 @@ def extractData(sourcePath):
         )
         addRows(fileName, customerInfo)
 
+        # Creation of json storage files
+        jsonCreate("json_storage/data.json")
+        jsonCreate("json_storage/sent.json")
+
     else:
 
         print("Error: Source File Path not Found!")
@@ -117,7 +121,6 @@ def sendMessage(limit):
             "Content-Type": "application/json",
         }  # This is for authorization and type of data to post or get
 
-        jsonCreate(store)
         data = getJsonData(storagePath)
 
         names = list(data.keys())
@@ -160,7 +163,6 @@ def sendMessage(limit):
             }
             addJsonData(store, name, status)
             delJsonData(store, storagePath)
-            jsonToCsv(store, "Done")
 
             # return response.json()
             print(f"Request for {name} is sent✅")
@@ -178,6 +180,7 @@ def deliveryMessage():
         sentClients = getJsonData(sentPath)
 
         jsonCreate(deliveryPath)
+        fileCreation("failed", headers=["Name", "Status"])
 
         totalCount = 0
         failedCount = 0
@@ -288,13 +291,12 @@ def main():
 
     elif args.argument == "extract":
 
-        sourcePath = "docs/source/source_data.xlsx"
-        extractData(sourcePath)
+        extractData("docs/source/source_data.xlsx")
 
     elif args.argument == "fill":
 
         tempFilling(
-            datetime(2025, 12, 20),
+            datetime.today,
             f"docs/results/{args.filename}.csv",
             f"{args.filename}.csv",
         )
