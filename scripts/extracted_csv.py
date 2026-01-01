@@ -85,3 +85,6 @@ def nonRecInput(filePath, data):  # Prevents existing rows to being added to the
 
     except Exception as Error:
         errorDisplay(Error)
+
+if __name__ == "__main__":
+    addRows("failed", [["Khalid", "unknown"], ["Juma", "failed"]])

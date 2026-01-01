@@ -191,6 +191,7 @@ def deliveryMessage():
         deliveryCount = 0
         pendingCount = 0
         unknownCount = 0
+        failedList = []
 
         for clients in sentClients.keys():
 
@@ -210,13 +211,7 @@ def deliveryMessage():
                 sentCount += 1
 
             elif deliveryStatus["data"]["messages"][0]["status"] == "failed":
-                addRows(
-                    "failed",
-                    [
-                        clients,
-                        deliveryStatus["data"]["messages"][0]["status"],
-                    ],
-                )
+                failedList.append([clients, deliveryStatus["data"]["messages"][0]["status"]])
                 failedCount += 1
 
             elif deliveryStatus["data"]["messages"][0]["status"] == "delivered":
@@ -226,6 +221,7 @@ def deliveryMessage():
                 pendingCount += 1
 
             elif deliveryStatus["data"]["messages"][0]["status"] == "unknown":
+                failedList.append([clients, deliveryStatus["data"]["messages"][0]["status"]])
                 unknownCount += 1
 
             totalCount += 1
@@ -238,6 +234,7 @@ def deliveryMessage():
             addJsonData(deliveryPath, clients, value)
             print(f"{clients} checked ✅")
 
+        addRows("failed", failedList)
         headers = ["Details", "Amount"]
         row = [
             ["Total Clients", totalCount],
