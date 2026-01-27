@@ -10,5 +10,5 @@ TAFADHALI LIPA ANKARA KWA UKAMILIFU kabla ya {Deadline Date}, AMA
 1. Taslimu Kituoni au
 2. AZAMPESA namba {AZAMPESA} au
 3. LIPA NAMBA (Tigo) {LIPA_NAMBA} au
-Jina DAN MUSYANI
+Jina {RECIEVER_NAME}
 Ahsante.

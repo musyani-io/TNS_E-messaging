@@ -1,49 +1,17 @@
-# TNS E-messaging Project
+# UPDATES
 
-## Overview
+## TEXT PART
 
-This project automates data extraction and personalized messaging (SMS/WhatsApp) for streamlined billing communication.
+- [ ] Reduce the json storage files to just _data.json_ (extracted one) & _sent.json_ (succesful sent).
+- [ ] The _unknown_ & _failed_ status text should remain in _data.json_. (Created the _failed.csv_ but not yet implemented its connection with _data.json_)
+- [ ] A feature to limit my sending rate to 48 per day.
+- [ ] After sending, the delivery code should write each client and its status in the _report.csv_.
 
-## Key Components
+## EXTRACTION PART
 
-- **`scripts/data_extraction.py`**: Extracts and cleans data from source files (e.g., Excel), using `openpyxl` or `pandas`.
-- **`scripts/extracted_csv.py`**: Handles CSV file extraction and processing.
-- **`scripts/main.py`**: Orchestrates the core workflow: data processing, message handling, and execution via CLI arguments.
-- **`scripts/miscallenous.py`**: Contains helper functions and utility code.
-- **`scripts/templates.py`**: Populates message templates with client-specific data.
+- [x] Better detection for location through border colours.
+- [x] After a succesful extraction, creation of _data.json_, _sent.json_ and _report.csv_ should be implemented.
 
-## Dependencies
+## TEMPLATES PART
 
-- `openpyxl` (Excel data extraction)
-- `requests` (HTTP requests for TextBee API)
-- `python-dotenv` (Environment variable management)
-- `csv` (CSV file handling)
-- `tabulate` (Formatted table output)
-- `flake8, flake8-comprehensions, flake8-docstrings` (Linting)
-
-Install via: `pip install -r requirements.txt`
-
-## Setup
-
-1. Clone the repository.
-2. Create a virtual environment: `python3 -m venv venv`
-3. Activate: `source venv/bin/activate` (Linux/macOS) or `venv\Scripts\activate` (Windows)
-4. Install dependencies: `pip install -r requirements.txt`
-5. Configure environment variables in `.env`:
-
-   ```
-   API_KEY=<your_textbee_api_key>
-   DEVICE_ID=<your_textbee_device_id>
-   ```
-
-## Usage
-
-Run `scripts/main.py` with appropriate command-line arguments (see `--help` for options):
-
-```bash
-python scripts/main.py <command> --filename <filename> --name <name> --limit <limit>
-```
-
-Available commands: `display`, `extract`, `fill`, `send`
-
-Coding style is enforced with `flake8`.
+- [x] Remove any personal information and replace it with a placeholder.

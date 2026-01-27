@@ -112,6 +112,7 @@ def extractData(sourcePath):
     Args:
         sourcePath (str): Path to the source Excel file
 
+        workSheet, fileName = envSetup(sourcePath)
     Returns:
         None: Creates a new CSV file with extracted data
     """
@@ -135,7 +136,14 @@ def extractData(sourcePath):
                 "Final Bill",
             ],
         )
-        addRows(fileName, customerInfo, date)
+        customerInfo = activeClients(
+            customerInfo
+        )  # Checks for validity of extracted data
+        addRows(fileName, customerInfo)
+
+        # Creation of json storage files
+        jsonCreate("json_storage/data.json")
+        jsonCreate("json_storage/sent.json")
 
     else:
 
@@ -168,7 +176,6 @@ def sendMessage(limit):
             "Content-Type": "application/json",
         }  # Authorization header and content type for API requests
 
-        jsonCreate(store)
         data = getJsonData(storagePath)
 
         names = list(data.keys())
@@ -215,7 +222,6 @@ def sendMessage(limit):
             }
             addJsonData(store, name, status)
             delJsonData(store, storagePath)
-            jsonToCsv(store, "Done")
 
             # return response.json()
             print(f"Request for {name} is sent✅")
@@ -241,6 +247,7 @@ def deliveryMessage():
         sentClients = getJsonData(sentPath)
 
         jsonCreate(deliveryPath)
+        fileCreation("failed", headers=["Name", "Status"])
 
         # Initialize counters for different delivery statuses
         totalCount = 0
@@ -249,6 +256,7 @@ def deliveryMessage():
         deliveryCount = 0
         pendingCount = 0
         unknownCount = 0
+        failedList = []
 
         # Check delivery status for each client
         for clients in sentClients.keys():
@@ -270,13 +278,19 @@ def deliveryMessage():
             # Categorize message status and update counters
             if deliveryStatus["data"]["messages"][0]["status"] == "sent":
                 sentCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "failed":
+                failedList.append([clients, deliveryStatus["data"]["messages"][0]["status"]])
                 failedCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "delivered":
                 deliveryCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "pending":
                 pendingCount += 1
+
             elif deliveryStatus["data"]["messages"][0]["status"] == "unknown":
+                failedList.append([clients, deliveryStatus["data"]["messages"][0]["status"]])
                 unknownCount += 1
 
             totalCount += 1
@@ -289,7 +303,7 @@ def deliveryMessage():
             addJsonData(deliveryPath, clients, value)
             print(f"{clients} checked ✅")
 
-        # Prepare summary statistics table with counts and percentages
+        addRows("failed", failedList)
         headers = ["Details", "Amount"]
         row = [
             ["Total Clients", totalCount],
@@ -332,15 +346,13 @@ def main():
 
     parser.add_argument(
         "argument",
-        help="Action to for the program to do (display data, extract data, search specifics or send message)",
+        type=str,
+        help="Action to for the program to do (display, extract, fill, send or deliver)",
     )
     parser.add_argument(  # This is for display argument
         "--filename",
         type=str,
-        help="Specific file name (the exact name without extension)",
-    )
-    parser.add_argument(  # This is for search message (maybe for messaging later)
-        "--name", type=str, help="Full name to search for client's information"
+        help="Specific file name required for the action (the exact name without extension)",
     )
     parser.add_argument(  # This is the limit for extract and display of data as well as messaging people
         "--limit",
@@ -369,15 +381,14 @@ def main():
 
     elif args.argument == "extract":
 
-        sourcePath = "docs/source/source_data.xlsx"
-        extractData(sourcePath)
+        extractData("docs/source/source_data.xlsx")
 
     elif args.argument == "fill":
 
         tempFilling(
-            datetime(2025, 12, 20),
+            datetime.today(),
             f"docs/results/{args.filename}.csv",
-            f"{args.filename}.csv",
+            "docs/results/failed.csv",
         )
 
     elif args.argument == "send":

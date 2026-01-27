@@ -17,6 +17,7 @@ from extracted_csv import *
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from jsonSt import *
+import calendar
 import locale
 import os
 
@@ -41,24 +42,19 @@ def formatNumbers(num):
         return locale.format_string("%d", num, grouping=True)
 
 
-def tempFilling(startDate, filePath, fileName):
-    """
-    Fill message templates with customer billing data and prepare for sending.
+def tempFilling(startDate, filePath, failedCsv):
+    # Data to be extracted for
 
-    Reads customer data from CSV, loads location-specific message templates,
-    substitutes billing variables, and stores prepared messages in JSON format.
-    Skips customers who have already been sent messages.
+        failedClients = []
 
-    Args:
-        startDate (datetime): Base date for calculating payment deadline
-        filePath (str): Path to CSV file containing customer billing data
-        fileName (str): Name of the billing period file
+        with open(failedCsv, "r") as csvFile:
 
-    Returns:
-        None: Stores prepared messages in json_storage/data.json
-    """
-    try:
-        # Read customer billing data from CSV
+            reader = csv.reader(csvFile)
+            next(reader)
+
+            for row in reader:
+                failedClients.append(row[0])
+
         with open(filePath, "r") as csvFile:
 
             reader = csv.reader(csvFile)
@@ -74,7 +70,9 @@ def tempFilling(startDate, filePath, fileName):
                 # Skip customers who have already been sent messages
                 sentClients = getJsonData("json_storage/sent.json")
 
-                if row[1] in sentClients:
+                if row[1] in failedClients:
+                    pass
+                elif row[1] in sentClients:
                     continue
 
                 # Load location-specific message template (Lumo or Chanika)
@@ -85,11 +83,8 @@ def tempFilling(startDate, filePath, fileName):
                     # Calculate payment deadline (7 days from start date)
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
-                    yearName = fileName[:9]
-
-                    # Dictionary mapping template variables to actual customer data
                     var = {  # Dictionary for variables in message templates.
-                        "Month, year": yearName,
+                        "Month, year": f"{calendar.month_abbr[startDate.month]}, {startDate.year}",
                         "Customer Name": row[1],
                         "Liters Used": formatNumbers(float(row[5])),
                         "Net Charge": formatNumbers(int(row[6])),
@@ -99,15 +94,15 @@ def tempFilling(startDate, filePath, fileName):
                         "AZAMPESA": os.getenv("AZAMPESA"),
                         "LIPA_NAMBA": os.getenv("LIPA_NAMBA"),
                         "TigoPesa": os.getenv("TIGOPESA"),
+                        "RECIEVER_NAME": os.getenv("RECIEVER_NAME"),
                     }
 
                     # Substitute template variables with actual values
                     filledTemp = file.format(**var)
-                    store = "json_storage/data.json"
-                    jsonCreate(store)
-                    # Store message with contact info for sending
                     value = {"Contact": row[2], "Body": filledTemp}
-                    addJsonData(store, row[1], value)
+                    addJsonData("json_storage/data.json", row[1], value)
+        
+        print("Storage 'data.json' updated!✅")
 
     except Exception as Error:
         errorDisplay(Error)
@@ -115,4 +110,6 @@ def tempFilling(startDate, filePath, fileName):
 
 if __name__ == "__main__":
 
-    print(tempFilling("docs/results/Oct, 2025.csv", "Oct-2024"))
+    tempFilling(datetime.today(),
+            f"docs/results/January, 2026 (1).csv",
+            "docs/results/failed.csv",)

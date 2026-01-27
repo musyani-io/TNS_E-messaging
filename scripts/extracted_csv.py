@@ -1,17 +1,4 @@
-"""CSV File Management Module.
-
-Handles creation and manipulation of CSV files for storing customer billing data.
-Provides functions for file creation, row addition with duplicate prevention,
-and data filtering for active clients.
-
-Features:
-- CSV file creation with headers
-- Duplicate entry prevention
-- Active client filtering (minimum bill threshold)
-- Special case exclusions
-"""
-
-from miscallenous import errorDisplay, specialCases
+from miscallenous import errorDisplay
 import os
 import csv
 
@@ -43,17 +30,7 @@ def fileCreation(fileName, headers):
             errorDisplay(Error)
 
 
-def addRows(fileName, info, date):
-    """
-    Append new customer data rows to an existing CSV file.
-
-    Filters data for active clients and prevents duplicate entries before
-    appending to the CSV file.
-
-    Args:
-        fileName (str): Name of the CSV file (without extension)
-        info (list): List of customer data rows to add
-        date (str): Date string (currently unused but kept for compatibility)
+def addRows(fileName, info):
 
     Returns:
         None: Updates CSV file with new rows
@@ -66,9 +43,6 @@ def addRows(fileName, info, date):
 
             writer = csv.writer(csvFile)
 
-            # Filter for active clients only (excludes special cases and low bills)
-            info = activeClients(info)
-            # Remove duplicate entries that already exist in the file
             data = nonRecInput(filePath, info)
             writer.writerows(data)
 
@@ -104,9 +78,7 @@ def activeClients(data):
         for rows in data:
             # Filter criteria: valid name, bill > 50, not in special cases
             if (
-                rows[1] is not None
-                and int(rows[8]) > 50
-                and rows[1] not in specialCases
+                rows[1] is not None and int(rows[8]) > 50
             ):  # Checks and removes empty names and bills, excludes names in specialCases too
 
                 actvClients.append(rows)
@@ -151,3 +123,6 @@ def nonRecInput(filePath, data):
 
     except Exception as Error:
         errorDisplay(Error)
+
+if __name__ == "__main__":
+    addRows("failed", [["Khalid", "unknown"], ["Juma", "failed"]])

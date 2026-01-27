@@ -19,30 +19,16 @@ import openpyxl
 
 
 def envSetup(sourcePath):
-    """
-    Setup the Excel workbook environment and extract date/worksheet information.
-
-    Args:
-        sourcePath (str): Path to the source Excel file
-
-    Returns:
-        tuple: (formatted_date, worksheet_object, output_filename)
-            - formatted_date: String in format "DD-Mon-YYYY"
-            - worksheet_object: openpyxl worksheet reference
-            - output_filename: String like "Month, Year"
-    """
-    # Configure reading date (currently set to dummy date for testing)
-    date = datetime(2025, 12, 20)  # Dummy date for configuration, will be erased later
-    # date = datetime.today()  # This will be enabled on final testing and usage
+    # Returns the required worksheet to work at that time!
 
     try:
 
         workbook = openpyxl.load_workbook(sourcePath, data_only=True)
-        workSheet = workbook["December '25"]
+        sheetName = input("Exact name of the sheet: ")
+        workSheet = workbook[sheetName]
         return (
-            date.strftime("%d-%b-%Y"),
             workSheet,
-            f"{dateTime_dict[date.month]}, {date.year}",
+            sheetName,
         )
 
     except Exception as Error:
@@ -92,13 +78,11 @@ def extractFromBox(cell):
     # Extract communication app preference and determine location by border color
     commApp = jumpTo(-1, 3)
     colorBox = jumpTo(-1, 0)
-    topColor = colorBox.border.top.color
-    color = topColor.index if topColor else None
-    # Location determined by cell border color: No color = Lumo, Color = Chanika
-    if color is None:
-        location = "Lumo"
-    else:
+    topColor = colorBox.border.top.color if colorBox.border.top is not None else None
+    if topColor and topColor.rgb == "FFC00000":  # Orange used for Chanika clients
         location = "Chanika"
+    else:
+        location = "Lumo"
 
     # Extract usage and billing information
     literUsed = jumpTo(4, 4)
