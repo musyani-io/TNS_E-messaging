@@ -1,12 +1,28 @@
-"""Miscellaneous Utility Functions Module.
+"""Utility Functions and Shared Constants Module.
 
-Provides helper functions and constants used across the TNS E-messaging system.
+Provides cross-cutting concerns used throughout the TNS E-messaging system,
+including phone number normalization, enhanced error reporting, and configuration constants.
 
-Features:
-- Phone number format conversion (local to international)
-- Enhanced error display with traceback information
-- Date/time constants and mappings
-- Special cases configuration
+Functions:
+    * localToInt(): Convert Tanzanian phone numbers from local to E.164 international format
+    * errorDisplay(): Enhanced exception handler with file/line traceback information
+
+Shared Configuration:
+    No longer includes dateTime_dict or specialCases (removed in current version)
+
+Phone Number Format Transformation:
+    Input:  "0773422381" (Tanzanian local format)
+    Output: "+255773422381" (E.164 international format)
+
+    Format Specification (E.164):
+    - Country code: +255 (Tanzania)
+    - Subscriber number: 9 digits (replacing leading 0)
+    - No spaces or punctuation in final output
+
+Error Handling Philosophy:
+    System uses fail-fast approach with detailed error reporting to facilitate debugging.
+    All exceptions are caught at function boundaries and passed to errorDisplay() for
+    consistent formatting and program termination.
 """
 
 from dotenv import load_dotenv
@@ -18,52 +34,95 @@ load_dotenv()
 
 def localToInt(localNumber):
     """
-    Convert local Tanzanian phone number format to international format.
+    Normalize Tanzanian phone numbers to E.164 international format.
 
-    Transforms numbers from local format (e.g., 0773422381) to international
-    format (e.g., +255773422381). If no number provided, returns owner's number.
+    Converts local phone number formats (0XXXXXXXXX) to internationally dialable
+    format (+255XXXXXXXXX) required by SMS gateway APIs. Provides fallback to
+    system owner's number for missing customer contacts.
 
     Args:
-        localNumber (str or int or None): Local phone number or None
+        localNumber (str | int | None): Phone number in local format:
+            - str: "0773422381" or "0773 422 381" (spaces allowed)
+            - int: 773422381 (leading zero may be missing)
+            - None: Triggers fallback to owner number
 
     Returns:
-        str: Phone number in international format (+255...)
+        str: E.164 formatted international number "+255XXXXXXXXX"
+            - Always includes + prefix
+            - Always starts with 255 (Tanzania country code)
+            - No spaces or formatting characters
+
+    Environment Variables:
+        OWNER_NO (str): Fallback number from .env file, used when localNumber is None
+
+    Examples:
+        >>> localToInt("0773422381")
+        "+255773422381"
+        >>> localToInt("0773 422 381")
+        "+255773422381"
+        >>> localToInt(None)  # Assumes OWNER_NO="+255700000000"
+        "+255700000000"
+
+    Note:
+        Does not validate number length or format. Assumes all inputs follow
+        Tanzanian mobile numbering plan (9 digits after country code).
     """
     if localNumber is None:
-        # Use owner's number as fallback if no customer number provided
+        # Fallback strategy: use system owner's contact when customer number unavailable
         intNumber = os.getenv("OWNER_NO")
 
     else:
-        # Convert local format to international: remove spaces and replace leading 0 with +255
+        # Normalize to string and strip whitespace, then apply E.164 transformation
         localNumber = str(localNumber)
-        localNumber = localNumber.replace(" ", "")
-        intNumber = "+255" + localNumber[1:]
+        localNumber = localNumber.replace(" ", "")  # Remove formatting spaces
+        intNumber = "+255" + localNumber[1:]  # Replace leading 0 with +255
 
     return intNumber
 
 
 def errorDisplay(error):
     """
-    Display detailed error information including file location and line number.
+    Enhanced exception handler with traceback information for debugging.
 
-    Extracts traceback information to show exactly where an error occurred,
-    then exits the program.
+    Intercepts exceptions at module boundaries to provide detailed error context
+    including exact file location and line number where exception originated.
+    After displaying error details, terminates program with appropriate exit code.
 
     Args:
-        error (Exception): The exception object that was caught
+        error (Exception): Caught exception object from try-except block
 
     Returns:
-        None: Prints error details and exits program with status code 1
+        Never returns: Always calls sys.exit()
+
+    Exit Codes:
+        * 1: Error occurred (traceback available)
+        * 0: Clean exit (no traceback, unlikely in practice)
+
+    Output Format:
+        Error at file: /path/to/file.py, line: 42
+        Error details: ValueError - invalid literal for int() with base 10
+
+    Usage Pattern:
+        >>> try:
+        ...     risky_operation()
+        ... except Exception as Error:
+        ...     errorDisplay(Error)  # Never returns
+
+    Design Philosophy:
+        Fail-fast approach prioritizes rapid error detection and clear diagnostics
+        over graceful degradation. All errors are considered fatal in this system.
     """
-    _p1, _p2, exc_traceback = sys.exc_info()  # Returns a tuple of the error info
+    _p1, _p2, exc_traceback = sys.exc_info()  # Unpack exception info tuple
 
     if exc_traceback:
-        # Extract and display file path, line number, and error details
+        # Extract traceback details and format for console output
         print(
-            f"Error at file: {exc_traceback.tb_frame.f_code.co_filename}, line: {exc_traceback.tb_lineno}"
+            f"Error at file: {exc_traceback.tb_frame.f_code.co_filename}, "
+            f"line: {exc_traceback.tb_lineno}"
         )
         print(f"Error details: {type(error).__name__} - {error}")
-        sys.exit(1)  # Exit with error code
+        sys.exit(1)  # Terminate with error status
 
     else:
+        # Edge case: exception info unavailable (should rarely occur)
         sys.exit(0)

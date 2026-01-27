@@ -1,16 +1,31 @@
-"""Message Template Processing Module.
+"""SMS Message Template Processing and Formatting Module.
 
-Handles the filling of SMS message templates with customer billing data.
-Reads location-specific message templates (Lumo or Chanika), substitutes
-variables with actual customer billing information, and prepares messages
-for sending.
+Responsible for transforming billing CSV data into personalized SMS messages ready for transmission.
+Implements location-aware template selection (Lumo vs. Chanika) with variable substitution,
+number localization, and intelligent duplicate prevention.
 
-Features:
-- Number formatting with thousand separators
-- Template variable substitution
-- Automatic deadline calculation
-- Payment provider information insertion
-- Duplicate message prevention
+Workflow:
+    1. Load customer billing records from CSV export
+    2. Check against sent/failed message history to avoid duplicates
+    3. Select location-specific template (message_templates/{location}/smart_text.txt)
+    4. Substitute template variables with formatted customer data
+    5. Persist prepared messages to JSON queue for batch transmission
+
+Template Variables Supported:
+    * {Month, year}: Billing period (e.g., "Jan, 2026")
+    * {Customer Name}: Full name of customer
+    * {Liters Used}: Formatted water consumption with thousands separator
+    * {Net Charge}: Current period charges (formatted)
+    * {Adjustments}: Previous balance/debts (formatted)
+    * {Final Bill}: Total amount due (formatted)
+    * {Deadline Date}: Payment due date (7 days from billing date)
+    * {AZAMPESA}, {LIPA_NAMBA}, {TigoPesa}: Payment account identifiers
+    * {RECIEVER_NAME}: Payee name for mobile money transfers
+
+Number Formatting:
+    - Uses British English locale (en_GB.UTF-8) for comma separators
+    - Floats: "1,234.5" (1 decimal place)
+    - Integers: "5,000" (no decimals)
 """
 
 from extracted_csv import *
@@ -26,14 +41,30 @@ load_dotenv()
 
 def formatNumbers(num):
     """
-    Format numbers with thousand separators for better readability.
+    Apply locale-aware thousands separators to numeric values for SMS display.
+
+    Formats numbers using British English conventions (comma as thousands separator,
+    period as decimal point). Essential for customer-facing message readability.
 
     Args:
-        num (int or float): Number to format
+        num (int | float): Numeric value to format (billing amounts or usage metrics)
 
     Returns:
-        str: Formatted number string with commas as thousand separators
-             Float values show 1 decimal place, integers show no decimals
+        str: Formatted number string:
+            - float: "1,234.5" (exactly 1 decimal place)
+            - int: "5,000" (no decimal places)
+
+    Examples:
+        >>> formatNumbers(5000)
+        "5,000"
+        >>> formatNumbers(1234.567)
+        "1,234.6"
+        >>> formatNumbers(42)
+        "42"
+
+    Note:
+        Requires locale 'en_GB.UTF-8' to be available on system. Falls back
+        to system default if unavailable.
     """
     locale.setlocale(locale.LC_ALL, "en_GB.UTF-8")
     if isinstance(num, float):
@@ -43,65 +74,105 @@ def formatNumbers(num):
 
 
 def tempFilling(startDate, filePath, failedCsv):
-    # Data to be extracted for
+    """
+    Generate personalized SMS messages from billing CSV and queue for transmission.
 
-        failedClients = []
+    Orchestrates the complete message preparation pipeline:
+    1. Load failed message history to enable selective retry
+    2. Parse customer billing records from CSV
+    3. Skip customers already processed (in sent.json) or explicitly failed
+    4. Load location-specific template (Lumo or Chanika)
+    5. Calculate payment deadline (startDate + 7 days)
+    6. Substitute template variables with formatted customer data
+    7. Queue prepared message in data.json for sendMessage() consumption
 
+    Args:
+        startDate (datetime): Billing period start date. Used for:
+            - Month/year display ("Jan, 2026")
+            - Deadline calculation (startDate + timedelta(7))
+        filePath (str): Path to billing CSV containing customer records
+        failedCsv (str): Path to failed.csv containing retry candidates
+
+    Returns:
+        None: Side effect is population of json_storage/data.json with message queue
+
+    Message Queue Format (data.json):
+        {
+            "Customer Name": {
+                "Contact": "+255773422381",
+                "Body": "Dear John, your Jan 2026 bill..."
+            },
+            ...
+        }
+
+    Raises:
+        FileNotFoundError: If template file doesn't exist for customer's location
+        KeyError: If required environment variables are missing
+    """
+    try:
+        failedClients = []  # Customers from previous failed delivery attempts
+
+        # Load failed delivery records for selective retry inclusion
         with open(failedCsv, "r") as csvFile:
-
             reader = csv.reader(csvFile)
-            next(reader)
+            next(reader)  # Discard header row
 
             for row in reader:
-                failedClients.append(row[0])
+                failedClients.append(row[0])  # Extract customer name
 
+        # Parse billing records and generate messages
         with open(filePath, "r") as csvFile:
 
             reader = csv.reader(csvFile)
 
             presentData = []
-            next(reader)  # Skip header row
+            next(reader)  # Discard header row
 
-            # Process each customer record
+            # Process each customer billing record
             for row in reader:
 
                 presentData.append(row)
 
-                # Skip customers who have already been sent messages
+                # Skip customers already successfully sent (avoid duplicate messages)
                 sentClients = getJsonData("json_storage/sent.json")
 
-                if row[1] in failedClients:
+                if row[1] in failedClients:  # Include failed customers for retry
                     pass
-                elif row[1] in sentClients:
+                elif row[1] in sentClients:  # Skip already-sent customers
                     continue
 
-                # Load location-specific message template (Lumo or Chanika)
-                filePath = f"message_templates/{row[4]}/smart_text.txt"
+                # Load template specific to customer's service location
+                filePath = f"message_templates/{row[4]}/smart_text.txt"  # row[4] = Lumo/Chanika
                 with open(filePath, "r") as f:
 
                     file = f.read()
-                    # Calculate payment deadline (7 days from start date)
+                    # Compute payment deadline: billing date + 7 days
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
-                    var = {  # Dictionary for variables in message templates.
+                    # Map template placeholders to actual customer data
+                    var = {  # Dictionary for template variable substitution
                         "Month, year": f"{calendar.month_abbr[startDate.month]}, {startDate.year}",
                         "Customer Name": row[1],
-                        "Liters Used": formatNumbers(float(row[5])),
-                        "Net Charge": formatNumbers(int(row[6])),
-                        "Adjustments": formatNumbers(int(row[7])),
-                        "Final Bill": formatNumbers(int(row[8])),
+                        "Liters Used": formatNumbers(
+                            float(row[5])
+                        ),  # Water consumption
+                        "Net Charge": formatNumbers(int(row[6])),  # Current charges
+                        "Adjustments": formatNumbers(int(row[7])),  # Previous balance
+                        "Final Bill": formatNumbers(int(row[8])),  # Total due
                         "Deadline Date": newDate,
-                        "AZAMPESA": os.getenv("AZAMPESA"),
+                        "AZAMPESA": os.getenv("AZAMPESA"),  # Payment account numbers
                         "LIPA_NAMBA": os.getenv("LIPA_NAMBA"),
                         "TigoPesa": os.getenv("TIGOPESA"),
-                        "RECIEVER_NAME": os.getenv("RECIEVER_NAME"),
+                        "RECIEVER_NAME": os.getenv("RECIEVER_NAME"),  # Payee name
                     }
 
-                    # Substitute template variables with actual values
+                    # Perform variable substitution using str.format()
                     filledTemp = file.format(**var)
                     value = {"Contact": row[2], "Body": filledTemp}
-                    addJsonData("json_storage/data.json", row[1], value)
-        
+                    addJsonData(
+                        "json_storage/data.json", row[1], value
+                    )  # Queue message
+
         print("Storage 'data.json' updated!✅")
 
     except Exception as Error:
@@ -110,6 +181,8 @@ def tempFilling(startDate, filePath, failedCsv):
 
 if __name__ == "__main__":
 
-    tempFilling(datetime.today(),
-            f"docs/results/January, 2026 (1).csv",
-            "docs/results/failed.csv",)
+    tempFilling(
+        datetime.today(),
+        "docs/results/January, 2026 (1).csv",
+        "docs/results/failed.csv",
+    )

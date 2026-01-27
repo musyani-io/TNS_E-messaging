@@ -1,22 +1,25 @@
-"""TNS E-messaging Main Module.
+"""TNS E-Messaging System - Main Application Module.
 
-This is the main entry point for the TNS (Tanzania) clients' e-messaging system.
-It handles customer billing data extraction, message template filling, SMS sending
-via TextBee API, and delivery status tracking.
+Provides the primary interface for Tanzania Water Service billing and messaging operations.
+This module orchestrates the complete workflow from data extraction to SMS delivery,
+integrating with TextBee API for reliable message transmission.
 
-Main functionalities:
-- Display billing data in full or summary format
-- Extract customer data from Excel worksheets
-- Fill message templates with billing information
-- Send SMS messages to customers
-- Track and report message delivery status
+Core Capabilities:
+    * Display customer billing records (full table or statistical summary)
+    * Extract structured data from formatted Excel worksheets
+    * Generate personalized SMS messages using template substitution
+    * Transmit bulk SMS messages with configurable limits and rate control
+    * Monitor and report delivery status with comprehensive metrics
 
-Usage:
-    python main.py display --filename "January, 2026 (1)"
-    python main.py extract
-    python main.py fill --filename "January, 2026 (1)"
-    python main.py send --limit 10
-    python main.py delivery
+CLI Usage Examples:
+    $ python main.py display --filename "January, 2026 (1)"
+    $ python main.py extract
+    $ python main.py fill --filename "January, 2026 (1)"
+    $ python main.py send --limit 10
+    $ python main.py delivery
+
+Author: TNS Water Services
+API Provider: TextBee (https://textbee.dev)
 """
 
 from data_extraction import *
@@ -33,41 +36,50 @@ import sys
 
 def displayData(fileName, headers):
     """
-    Display customer billing data from a CSV file in either full or summary format.
+    Render customer billing data from CSV file with user-selectable display modes.
+
+    Provides two visualization modes:
+    1. Full Mode: Complete tabular display of all customer records
+    2. Summary Mode: Aggregated statistics including client counts by location,
+       financial totals, and segmented billing breakdowns
 
     Args:
-        fileName (str): Name of the CSV file to read from docs/results/ directory
-        headers (list): Column headers for the table display
+        fileName (str): CSV filename located in docs/results/ (e.g., "January, 2026.csv")
+        headers (list[str]): Column names for table header row
 
     Returns:
-        None: Prints formatted table to console
+        None: Outputs formatted table directly to console via tabulate
+
+    Raises:
+        FileNotFoundError: If specified CSV file doesn't exist
+        ValueError: If CSV data contains invalid numeric values
     """
     try:
-        # Initialize data path and tracking variables
+        # Configure file path and initialize accumulator variables
         dataPath = f"docs/results/{fileName}"
         row = []
-        lumoCli = 0
-        chnkCli = 0
-        currCharges = 0
-        adjs = 0
-        sum = 0
+        lumoCli = 0  # Lumo location client count
+        chnkCli = 0  # Chanika location client count
+        currCharges = 0  # Sum of current period charges
+        adjs = 0  # Sum of previous period adjustments/debts
+        sum = 0  # Grand total of all charges
 
         with open(dataPath, "r") as csvFile:
 
             reader = csv.reader(csvFile)
-            next(reader)  # Skip header row
+            next(reader)  # Discard header row
 
-            # Iterate through each customer record and aggregate statistics
+            # Parse each customer record and compute running totals
             for rows in reader:
                 row.append(rows)
 
-                # Count clients by location (Lumo or Chanika)
+                # Segment clients by service location
                 if rows[4] == "Lumo":
                     lumoCli += 1
                 else:
                     chnkCli += 1
 
-                # Sum up financial totals
+                # Accumulate financial metrics (columns: netCharge, adjustments, finalBill)
                 currCharges += int(rows[6])
                 adjs += int(rows[7])
                 sum += int(rows[8])
@@ -107,19 +119,29 @@ def displayData(fileName, headers):
 
 def extractData(sourcePath):
     """
-    Extract customer billing data from an Excel worksheet and save to CSV.
+    Parse customer billing information from Excel workbook and export to CSV format.
+
+    Orchestrates the complete extraction pipeline:
+    1. Load Excel workbook and identify target worksheet
+    2. Navigate cell grid to locate customer data boxes
+    3. Extract and validate billing records
+    4. Filter for active clients (bills > 50 TZS)
+    5. Write results to timestamped CSV file
+    6. Initialize JSON storage for messaging workflow
 
     Args:
-        sourcePath (str): Path to the source Excel file
+        sourcePath (str): Absolute or relative path to source Excel file (.xlsx)
 
-        workSheet, fileName = envSetup(sourcePath)
     Returns:
-        None: Creates a new CSV file with extracted data
+        None: Side effects include CSV file creation and JSON storage initialization
+
+    Raises:
+        SystemExit: If source file path is invalid or inaccessible
     """
     if os.path.exists(sourcePath):
-        # Setup environment: get date, worksheet reference, and output filename
+        # Initialize extraction context: load workbook and get target worksheet reference
         date, workSheet, fileName = envSetup(sourcePath)
-        cell = workSheet["A1"]
+        cell = workSheet["A1"]  # Start iteration from top-left cell
 
         customerInfo = iterateOnBoxes(cell)
         fileCreation(
@@ -136,12 +158,11 @@ def extractData(sourcePath):
                 "Final Bill",
             ],
         )
-        customerInfo = activeClients(
-            customerInfo
-        )  # Checks for validity of extracted data
+        # Filter for billable clients: exclude empty records and bills ≤ 50 TZS
+        customerInfo = activeClients(customerInfo)
         addRows(fileName, customerInfo)
 
-        # Creation of json storage files
+        # Initialize persistent JSON storage for message queue and delivery tracking
         jsonCreate("json_storage/data.json")
         jsonCreate("json_storage/sent.json")
 
@@ -153,36 +174,49 @@ def extractData(sourcePath):
 
 def sendMessage(limit):
     """
-    Send SMS messages to customers using TextBee API.
+    Transmit SMS billing notifications to customers via TextBee Gateway API.
+
+    Implements batch message transmission with the following controls:
+    - Automatic rate limiting (1 second delay between requests)
+    - Configurable message limit (default: 40, range: 1-40)
+    - Success tracking via JSON persistence
+    - Automatic cleanup of successfully sent messages from queue
 
     Args:
-        limit (int or None): Maximum number of messages to send. If None or invalid, defaults to 40.
-                            Capped at 40 max and total available recipients.
+        limit (int | None): Maximum messages to send in this batch.
+            - None or invalid values default to 40
+            - Values < 1 or > 40 are clamped to valid range
+            - Cannot exceed total available recipients
 
     Returns:
-        None: Sends messages and logs status to JSON file
+        None: Updates sent.json with batch IDs and status codes,
+              removes successful entries from data.json queue
+
+    Raises:
+        HTTPError: If TextBee API returns non-2xx status code
+        KeyError: If environment variables (DEVICE_ID, API_KEY) are undefined
     """
     load_dotenv()
     store = "json_storage/sent.json"
     storagePath = "json_storage/data.json"
 
     try:
-        # Configure TextBee API endpoint
+        # Construct TextBee REST API endpoint with device identifier
         baseUrl = "https://api.textbee.dev/api/v1"
         requestUrl = f"{baseUrl}/gateway/devices/{os.getenv("DEVICE_ID")}/send-sms"
 
+        # Configure authentication and content type headers
         headers = {
-            "x-api-key": os.getenv("API_KEY"),
-            "Content-Type": "application/json",
-        }  # Authorization header and content type for API requests
+            "x-api-key": os.getenv("API_KEY"),  # API key for gateway authorization
+            "Content-Type": "application/json",  # JSON payload encoding
+        }
 
         data = getJsonData(storagePath)
-
         names = list(data.keys())
 
-        # Validate and normalize the limit value
+        # Normalize and constrain message limit to acceptable range
         if limit is not None:
-            # Enforce limit boundaries: minimum 1, maximum 40 or total recipients
+            # Enforce boundaries: min=1, max=40 or total_recipients (whichever is smaller)
             if limit > 40 or limit < 1:
                 if limit > len(names):
                     limit = len(names)
@@ -191,30 +225,28 @@ def sendMessage(limit):
         else:
             limit = 40
 
-        # Send messages to each recipient within the limit
+        # Iterate through message queue and transmit each SMS
         for i in range(limit):
 
             name = names[i]
             value = data[name]
-            # print(f"Name: {name}, Contact: {value["Contact"]}, \nBody: {value["Body"]}")
+            # Debug output (disabled): print(f"Name: {name}, Contact: {value["Contact"]}, Body: {value["Body"]}")
 
-            # Prepare SMS payload with message body and recipient
+            # Construct TextBee-compliant SMS payload
             payload = {
                 "message": value["Body"],
-                # "recipients": ["+255773422381"],  # Test number - disabled in production
-                "recipients": [
-                    value["Contact"]
-                ],  # Recipient number must be in a list format
+                # "recipients": ["+255773422381"],  # Reserved for testing - production disabled
+                "recipients": [value["Contact"]],  # TextBee API requires array format
             }
 
-            # Send POST request to TextBee API
+            # Execute HTTP POST request to TextBee gateway
             response = requests.post(
                 url=requestUrl, headers=headers, data=json.dumps(payload)
             )
-            response.raise_for_status()
-            time.sleep(1)  # Rate limiting: wait 1 second between requests
+            response.raise_for_status()  # Raise exception for HTTP errors (4xx/5xx)
+            time.sleep(1)  # Rate control: 1-second inter-request delay
 
-            # Store message status and metadata
+            # Persist transmission metadata for delivery tracking
             status = {
                 "smsBatchId": response.json()["data"]["smsBatchId"],
                 "Contact": value["Contact"],
@@ -232,55 +264,73 @@ def sendMessage(limit):
 
 def deliveryMessage():
     """
-    Check delivery status of sent SMS messages and generate delivery report.
+    Query message delivery status from TextBee API and generate comprehensive report.
 
-    Queries the TextBee API for each sent message batch to determine status
-    (sent, delivered, failed, pending, or unknown) and displays statistics.
+    Performs batch status verification for all previously sent messages:
+    1. Retrieves SMS batch IDs from sent.json storage
+    2. Queries TextBee API for current delivery status of each batch
+    3. Categorizes messages by status: sent, delivered, failed, pending, unknown
+    4. Generates statistical summary with counts and success percentages
+    5. Exports failed messages to dedicated CSV for retry handling
+
+    Status Definitions:
+        * sent: Accepted by carrier but not yet delivered
+        * delivered: Successfully received by recipient device
+        * failed: Permanent delivery failure (invalid number, carrier rejection)
+        * pending: Awaiting carrier acceptance
+        * unknown: Status unavailable from carrier
 
     Returns:
-        None: Prints formatted delivery statistics table
+        None: Outputs tabulated statistics to console and updates delivery.json
+
+    Side Effects:
+        - Creates/updates delivery.json with status metadata
+        - Creates/updates failed.csv with undelivered message records
     """
     try:
-        # Initialize storage paths and load sent messages data
+        # Configure storage paths and load transmission history
         sentPath = "json_storage/sent.json"
         deliveryPath = "json_storage/delivery.json"
         sentClients = getJsonData(sentPath)
 
+        # Ensure tracking files exist
         jsonCreate(deliveryPath)
         fileCreation("failed", headers=["Name", "Status"])
 
-        # Initialize counters for different delivery statuses
-        totalCount = 0
-        failedCount = 0
-        sentCount = 0
-        deliveryCount = 0
-        pendingCount = 0
-        unknownCount = 0
-        failedList = []
+        # Initialize status category counters
+        totalCount = 0  # Total messages checked
+        failedCount = 0  # Permanent failures
+        sentCount = 0  # Accepted by carrier but not yet delivered
+        deliveryCount = 0  # Successfully delivered to device
+        pendingCount = 0  # Awaiting carrier processing
+        unknownCount = 0  # Status unavailable
+        failedList = []  # Records requiring retry attention
 
-        # Check delivery status for each client
+        # Query TextBee API for each transmitted message batch
         for clients in sentClients.keys():
 
-            # Build API request URL with batch ID for this client
+            # Construct batch status query endpoint using stored batch ID
             baseUrl = "https://api.textbee.dev/api/v1"
             batchID = sentClients[clients]["smsBatchId"]
             requestUrl = f"{baseUrl}/gateway/devices/{os.getenv("DEVICE_ID")}/sms-batch/{batchID}"
             headers = {
-                "x-api-key": os.getenv("API_KEY"),
+                "x-api-key": os.getenv("API_KEY"),  # Authentication token
             }
 
-            # Query TextBee API for delivery status
+            # Execute GET request to retrieve current message status
             response = requests.get(url=requestUrl, headers=headers)
-            response.raise_for_status()
+            response.raise_for_status()  # Validate HTTP success
 
             deliveryStatus = response.json()
 
-            # Categorize message status and update counters
+            # Parse status from response and update category counters
             if deliveryStatus["data"]["messages"][0]["status"] == "sent":
-                sentCount += 1
+                sentCount += 1  # Carrier accepted but not yet delivered
 
             elif deliveryStatus["data"]["messages"][0]["status"] == "failed":
-                failedList.append([clients, deliveryStatus["data"]["messages"][0]["status"]])
+                failedList.append(
+                    [clients, deliveryStatus["data"]["messages"][0]["status"]]
+                )
                 failedCount += 1
 
             elif deliveryStatus["data"]["messages"][0]["status"] == "delivered":
@@ -290,7 +340,9 @@ def deliveryMessage():
                 pendingCount += 1
 
             elif deliveryStatus["data"]["messages"][0]["status"] == "unknown":
-                failedList.append([clients, deliveryStatus["data"]["messages"][0]["status"]])
+                failedList.append(
+                    [clients, deliveryStatus["data"]["messages"][0]["status"]]
+                )
                 unknownCount += 1
 
             totalCount += 1
@@ -303,7 +355,9 @@ def deliveryMessage():
             addJsonData(deliveryPath, clients, value)
             print(f"{clients} checked ✅")
 
-        addRows("failed", failedList)
+        addRows("failed", failedList)  # Export failed messages for manual review
+
+        # Compile delivery statistics with calculated success rates
         headers = ["Details", "Amount"]
         row = [
             ["Total Clients", totalCount],

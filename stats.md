@@ -20,4 +20,14 @@
 - Percent delivered: 60.95%
 - Percent failed: 1.9%
 
+## January, 2026
+
+- Total clients: 131
+- SMS sent:
+- SMS delivered:
+- SMS failed:
+- Percent Sent:
+- Percent delivered:
+- Percent failed:
+
 The other percent is of status **UNKNOWN**
