@@ -1,3 +1,24 @@
+"""TNS E-messaging Main Module.
+
+This is the main entry point for the TNS (Tanzania) clients' e-messaging system.
+It handles customer billing data extraction, message template filling, SMS sending
+via TextBee API, and delivery status tracking.
+
+Main functionalities:
+- Display billing data in full or summary format
+- Extract customer data from Excel worksheets
+- Fill message templates with billing information
+- Send SMS messages to customers
+- Track and report message delivery status
+
+Usage:
+    python main.py display --filename "January, 2026 (1)"
+    python main.py extract
+    python main.py fill --filename "January, 2026 (1)"
+    python main.py send --limit 10
+    python main.py delivery
+"""
+
 from data_extraction import *
 from tabulate import tabulate
 from templates import tempFilling, formatNumbers
@@ -11,8 +32,18 @@ import sys
 
 
 def displayData(fileName, headers):
-    try:
+    """
+    Display customer billing data from a CSV file in either full or summary format.
 
+    Args:
+        fileName (str): Name of the CSV file to read from docs/results/ directory
+        headers (list): Column headers for the table display
+
+    Returns:
+        None: Prints formatted table to console
+    """
+    try:
+        # Initialize data path and tracking variables
         dataPath = f"docs/results/{fileName}"
         row = []
         lumoCli = 0
@@ -24,16 +55,19 @@ def displayData(fileName, headers):
         with open(dataPath, "r") as csvFile:
 
             reader = csv.reader(csvFile)
-            next(reader)
+            next(reader)  # Skip header row
 
+            # Iterate through each customer record and aggregate statistics
             for rows in reader:
                 row.append(rows)
 
+                # Count clients by location (Lumo or Chanika)
                 if rows[4] == "Lumo":
                     lumoCli += 1
                 else:
                     chnkCli += 1
 
+                # Sum up financial totals
                 currCharges += int(rows[6])
                 adjs += int(rows[7])
                 sum += int(rows[8])
@@ -72,10 +106,19 @@ def displayData(fileName, headers):
 
 
 def extractData(sourcePath):
+    """
+    Extract customer billing data from an Excel worksheet and save to CSV.
 
-    if os.path.exists(sourcePath):
+    Args:
+        sourcePath (str): Path to the source Excel file
 
         workSheet, fileName = envSetup(sourcePath)
+    Returns:
+        None: Creates a new CSV file with extracted data
+    """
+    if os.path.exists(sourcePath):
+        # Setup environment: get date, worksheet reference, and output filename
+        date, workSheet, fileName = envSetup(sourcePath)
         cell = workSheet["A1"]
 
         customerInfo = iterateOnBoxes(cell)
@@ -109,28 +152,37 @@ def extractData(sourcePath):
 
 
 def sendMessage(limit):
+    """
+    Send SMS messages to customers using TextBee API.
 
+    Args:
+        limit (int or None): Maximum number of messages to send. If None or invalid, defaults to 40.
+                            Capped at 40 max and total available recipients.
+
+    Returns:
+        None: Sends messages and logs status to JSON file
+    """
     load_dotenv()
     store = "json_storage/sent.json"
     storagePath = "json_storage/data.json"
 
     try:
-
+        # Configure TextBee API endpoint
         baseUrl = "https://api.textbee.dev/api/v1"
         requestUrl = f"{baseUrl}/gateway/devices/{os.getenv("DEVICE_ID")}/send-sms"
 
         headers = {
             "x-api-key": os.getenv("API_KEY"),
             "Content-Type": "application/json",
-        }  # This is for authorization and type of data to post or get
+        }  # Authorization header and content type for API requests
 
         data = getJsonData(storagePath)
 
         names = list(data.keys())
 
-        # Handling the limit value
+        # Validate and normalize the limit value
         if limit is not None:
-
+            # Enforce limit boundaries: minimum 1, maximum 40 or total recipients
             if limit > 40 or limit < 1:
                 if limit > len(names):
                     limit = len(names)
@@ -139,26 +191,30 @@ def sendMessage(limit):
         else:
             limit = 40
 
+        # Send messages to each recipient within the limit
         for i in range(limit):
 
             name = names[i]
             value = data[name]
             # print(f"Name: {name}, Contact: {value["Contact"]}, \nBody: {value["Body"]}")
 
+            # Prepare SMS payload with message body and recipient
             payload = {
                 "message": value["Body"],
-                # "recipients": ["+255773422381"],  # This'll be changed in action, for testing purposes only.
+                # "recipients": ["+255773422381"],  # Test number - disabled in production
                 "recipients": [
                     value["Contact"]
-                ],  # The recipient's number should be enclosed as a list
+                ],  # Recipient number must be in a list format
             }
 
+            # Send POST request to TextBee API
             response = requests.post(
                 url=requestUrl, headers=headers, data=json.dumps(payload)
             )
             response.raise_for_status()
-            time.sleep(1)
+            time.sleep(1)  # Rate limiting: wait 1 second between requests
 
+            # Store message status and metadata
             status = {
                 "smsBatchId": response.json()["data"]["smsBatchId"],
                 "Contact": value["Contact"],
@@ -175,9 +231,17 @@ def sendMessage(limit):
 
 
 def deliveryMessage():
+    """
+    Check delivery status of sent SMS messages and generate delivery report.
 
+    Queries the TextBee API for each sent message batch to determine status
+    (sent, delivered, failed, pending, or unknown) and displays statistics.
+
+    Returns:
+        None: Prints formatted delivery statistics table
+    """
     try:
-
+        # Initialize storage paths and load sent messages data
         sentPath = "json_storage/sent.json"
         deliveryPath = "json_storage/delivery.json"
         sentClients = getJsonData(sentPath)
@@ -185,6 +249,7 @@ def deliveryMessage():
         jsonCreate(deliveryPath)
         fileCreation("failed", headers=["Name", "Status"])
 
+        # Initialize counters for different delivery statuses
         totalCount = 0
         failedCount = 0
         sentCount = 0
@@ -193,8 +258,10 @@ def deliveryMessage():
         unknownCount = 0
         failedList = []
 
+        # Check delivery status for each client
         for clients in sentClients.keys():
 
+            # Build API request URL with batch ID for this client
             baseUrl = "https://api.textbee.dev/api/v1"
             batchID = sentClients[clients]["smsBatchId"]
             requestUrl = f"{baseUrl}/gateway/devices/{os.getenv("DEVICE_ID")}/sms-batch/{batchID}"
@@ -202,11 +269,13 @@ def deliveryMessage():
                 "x-api-key": os.getenv("API_KEY"),
             }
 
+            # Query TextBee API for delivery status
             response = requests.get(url=requestUrl, headers=headers)
             response.raise_for_status()
 
             deliveryStatus = response.json()
 
+            # Categorize message status and update counters
             if deliveryStatus["data"]["messages"][0]["status"] == "sent":
                 sentCount += 1
 
@@ -259,8 +328,17 @@ def deliveryMessage():
 
 
 def main():
+    """
+    Main entry point for the TNS E-messaging CLI application.
 
-    # Accepting CLI arguments
+    Handles command-line arguments and routes to appropriate functions for:
+    - Displaying billing data
+    - Extracting data from Excel
+    - Filling message templates
+    - Sending SMS messages
+    - Checking delivery status
+    """
+    # Configure CLI argument parser
     parser = argparse.ArgumentParser(
         prog="TNS Clients' E-messaging",
         description="It accepts a custom made file and extracts data and sends required bills to clients as messages",
@@ -284,7 +362,7 @@ def main():
 
     args = parser.parse_args()
 
-    # Argument logic
+    # Route to appropriate function based on command argument
     if args.argument == "display":
 
         headers = [

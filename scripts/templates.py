@@ -1,3 +1,18 @@
+"""Message Template Processing Module.
+
+Handles the filling of SMS message templates with customer billing data.
+Reads location-specific message templates (Lumo or Chanika), substitutes
+variables with actual customer billing information, and prepares messages
+for sending.
+
+Features:
+- Number formatting with thousand separators
+- Template variable substitution
+- Automatic deadline calculation
+- Payment provider information insertion
+- Duplicate message prevention
+"""
+
 from extracted_csv import *
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -10,6 +25,16 @@ load_dotenv()
 
 
 def formatNumbers(num):
+    """
+    Format numbers with thousand separators for better readability.
+
+    Args:
+        num (int or float): Number to format
+
+    Returns:
+        str: Formatted number string with commas as thousand separators
+             Float values show 1 decimal place, integers show no decimals
+    """
     locale.setlocale(locale.LC_ALL, "en_GB.UTF-8")
     if isinstance(num, float):
         return locale.format_string("%.1f", num, grouping=True)
@@ -19,8 +44,6 @@ def formatNumbers(num):
 
 def tempFilling(startDate, filePath, failedCsv):
     # Data to be extracted for
-
-    try:
 
         failedClients = []
 
@@ -37,12 +60,14 @@ def tempFilling(startDate, filePath, failedCsv):
             reader = csv.reader(csvFile)
 
             presentData = []
-            next(reader)
+            next(reader)  # Skip header row
 
+            # Process each customer record
             for row in reader:
 
                 presentData.append(row)
 
+                # Skip customers who have already been sent messages
                 sentClients = getJsonData("json_storage/sent.json")
 
                 if row[1] in failedClients:
@@ -50,10 +75,12 @@ def tempFilling(startDate, filePath, failedCsv):
                 elif row[1] in sentClients:
                     continue
 
+                # Load location-specific message template (Lumo or Chanika)
                 filePath = f"message_templates/{row[4]}/smart_text.txt"
                 with open(filePath, "r") as f:
 
                     file = f.read()
+                    # Calculate payment deadline (7 days from start date)
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
                     var = {  # Dictionary for variables in message templates.
@@ -70,6 +97,7 @@ def tempFilling(startDate, filePath, failedCsv):
                         "RECIEVER_NAME": os.getenv("RECIEVER_NAME"),
                     }
 
+                    # Substitute template variables with actual values
                     filledTemp = file.format(**var)
                     value = {"Contact": row[2], "Body": filledTemp}
                     addJsonData("json_storage/data.json", row[1], value)
