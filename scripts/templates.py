@@ -1,3 +1,18 @@
+"""Message Template Processing Module.
+
+Handles the filling of SMS message templates with customer billing data.
+Reads location-specific message templates (Lumo or Chanika), substitutes
+variables with actual customer billing information, and prepares messages
+for sending.
+
+Features:
+- Number formatting with thousand separators
+- Template variable substitution
+- Automatic deadline calculation
+- Payment provider information insertion
+- Duplicate message prevention
+"""
+
 from extracted_csv import *
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -9,6 +24,16 @@ load_dotenv()
 
 
 def formatNumbers(num):
+    """
+    Format numbers with thousand separators for better readability.
+
+    Args:
+        num (int or float): Number to format
+
+    Returns:
+        str: Formatted number string with commas as thousand separators
+             Float values show 1 decimal place, integers show no decimals
+    """
     locale.setlocale(locale.LC_ALL, "en_GB.UTF-8")
     if isinstance(num, float):
         return locale.format_string("%.1f", num, grouping=True)
@@ -17,34 +42,52 @@ def formatNumbers(num):
 
 
 def tempFilling(startDate, filePath, fileName):
-    # Data to be extracted for
+    """
+    Fill message templates with customer billing data and prepare for sending.
 
+    Reads customer data from CSV, loads location-specific message templates,
+    substitutes billing variables, and stores prepared messages in JSON format.
+    Skips customers who have already been sent messages.
+
+    Args:
+        startDate (datetime): Base date for calculating payment deadline
+        filePath (str): Path to CSV file containing customer billing data
+        fileName (str): Name of the billing period file
+
+    Returns:
+        None: Stores prepared messages in json_storage/data.json
+    """
     try:
-
+        # Read customer billing data from CSV
         with open(filePath, "r") as csvFile:
 
             reader = csv.reader(csvFile)
 
             presentData = []
-            next(reader)
+            next(reader)  # Skip header row
 
+            # Process each customer record
             for row in reader:
 
                 presentData.append(row)
 
+                # Skip customers who have already been sent messages
                 sentClients = getJsonData("json_storage/sent.json")
 
                 if row[1] in sentClients:
                     continue
 
+                # Load location-specific message template (Lumo or Chanika)
                 filePath = f"message_templates/{row[4]}/smart_text.txt"
                 with open(filePath, "r") as f:
 
                     file = f.read()
+                    # Calculate payment deadline (7 days from start date)
                     newDate = datetime.strftime((startDate + timedelta(7)), "%d-%m-%Y")
 
                     yearName = fileName[:9]
 
+                    # Dictionary mapping template variables to actual customer data
                     var = {  # Dictionary for variables in message templates.
                         "Month, year": yearName,
                         "Customer Name": row[1],
@@ -58,9 +101,11 @@ def tempFilling(startDate, filePath, fileName):
                         "TigoPesa": os.getenv("TIGOPESA"),
                     }
 
+                    # Substitute template variables with actual values
                     filledTemp = file.format(**var)
                     store = "json_storage/data.json"
                     jsonCreate(store)
+                    # Store message with contact info for sending
                     value = {"Contact": row[2], "Body": filledTemp}
                     addJsonData(store, row[1], value)
 
