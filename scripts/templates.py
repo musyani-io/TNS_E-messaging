@@ -17,10 +17,20 @@ def formatNumbers(num):
         return locale.format_string("%d", num, grouping=True)
 
 
-def tempFilling(startDate, filePath, fileName):
+def tempFilling(startDate, filePath, failedCsv):
     # Data to be extracted for
 
     try:
+
+        failedClients = []
+
+        with open(failedCsv, "r") as csvFile:
+
+            reader = csv.reader(csvFile)
+            next(reader)
+
+            for row in reader:
+                failedClients.append(row[0])
 
         with open(filePath, "r") as csvFile:
 
@@ -35,7 +45,9 @@ def tempFilling(startDate, filePath, fileName):
 
                 sentClients = getJsonData("json_storage/sent.json")
 
-                if row[1] in sentClients:
+                if row[1] in failedClients:
+                    pass
+                elif row[1] in sentClients:
                     continue
 
                 filePath = f"message_templates/{row[4]}/smart_text.txt"
@@ -61,6 +73,8 @@ def tempFilling(startDate, filePath, fileName):
                     filledTemp = file.format(**var)
                     value = {"Contact": row[2], "Body": filledTemp}
                     addJsonData("json_storage/data.json", row[1], value)
+        
+        print("Storage 'data.json' updated!✅")
 
     except Exception as Error:
         errorDisplay(Error)
@@ -68,4 +82,6 @@ def tempFilling(startDate, filePath, fileName):
 
 if __name__ == "__main__":
 
-    tempFilling(datetime.today(), "docs/results/December '25.csv", "December '25")
+    tempFilling(datetime.today(),
+            f"docs/results/January, 2026 (1).csv",
+            "docs/results/failed.csv",)

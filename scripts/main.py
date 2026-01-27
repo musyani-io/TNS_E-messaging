@@ -310,7 +310,7 @@ def main():
         tempFilling(
             datetime.today(),
             f"docs/results/{args.filename}.csv",
-            f"{args.filename}.csv",
+            "docs/results/failed.csv",
         )
 
     elif args.argument == "send":
