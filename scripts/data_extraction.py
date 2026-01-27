@@ -48,8 +48,8 @@ def extractFromBox(cell):
     # Extract communication application and location
     commApp = jumpTo(-1, 3)
     colorBox = jumpTo(-1, 0)
-    topColor = colorBox.border.top.color
-    if topColor.rgb == "FFC00000":  # Orange used for Chanika clients
+    topColor = colorBox.border.top.color if colorBox.border.top is not None else None
+    if topColor and topColor.rgb == "FFC00000":  # Orange used for Chanika clients
         location = "Chanika"
     else:
         location = "Lumo"
