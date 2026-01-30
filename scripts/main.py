@@ -140,7 +140,7 @@ def extractData(sourcePath):
     """
     if os.path.exists(sourcePath):
         # Initialize extraction context: load workbook and get target worksheet reference
-        date, workSheet, fileName = envSetup(sourcePath)
+        workSheet, fileName = envSetup(sourcePath)
         cell = workSheet["A1"]  # Start iteration from top-left cell
 
         customerInfo = iterateOnBoxes(cell)
